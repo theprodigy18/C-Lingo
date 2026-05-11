@@ -8,6 +8,7 @@
 #include <Model/User.hpp>
 #include "User/SessionUser.hpp"
 #include "User/UserState.hpp"
+#include "User/PrivateUser.hpp"
 
 namespace CLingo::Dto
 {
@@ -41,5 +42,17 @@ namespace CLingo::Dto
             user.longestStreak,
             canClaimDailyEnergy,
             nextEnergyRefillSeconds};
+    }
+
+    inline PrivateUser UserToPrivateUser(const Model::User& user)
+    {
+        return PrivateUser{
+            user.username,
+            user.displayName,
+            user.email,
+            user.avatarUrl,
+            user.currentStreak,
+            user.longestStreak,
+        };
     }
 } // namespace CLingo::Dto

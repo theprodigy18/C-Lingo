@@ -4,6 +4,7 @@
 #include "Server.hpp"
 
 #include <Handler/AuthHandler.hpp>
+#include <Handler/UserHandler.hpp>
 
 namespace CLingo
 {
@@ -85,6 +86,7 @@ namespace CLingo
             *m_OAuthService,
             m_Config.jwtSecret,
             m_Config.jwtIssuer);
+        m_UserService = std::make_unique<UserService>(*m_UserRepository);
 
         // Setup handlers
         m_Handlers.push_back(
@@ -94,6 +96,12 @@ namespace CLingo
                 *m_CounterCache,
                 *m_Pool,
                 m_Config.appUrl));
+        m_Handlers.push_back(
+            std::make_unique<UserHandler>(
+                "/api/user",
+                *m_App,
+                *m_UserService,
+                *m_Pool));
 
         for (auto& handler : m_Handlers)
             handler->RegisterRoutes(*m_App);

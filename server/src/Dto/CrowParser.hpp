@@ -15,6 +15,9 @@
 #include "Auth/ResendVerificationEmailRequest.hpp"
 #include "Auth/AuthResponse.hpp"
 
+#include "User/UserState.hpp"
+#include "User/PrivateUser.hpp"
+
 namespace CLingo::Dto
 {
 #pragma region Auth
@@ -114,4 +117,29 @@ namespace CLingo::Dto
 
 #pragma endregion
 
+    inline crow::json::wvalue UserStateToJson(const Dto::UserState& state)
+    {
+        crow::json::wvalue j;
+        j["user"]["aura"] = state.aura;
+        j["user"]["energy"] = state.energy;
+        j["user"]["current_streak"] = state.currentStreak;
+        j["user"]["longest_streak"] = state.longestStreak;
+        j["user"]["can_claim_daily_energy"] = state.canClaimDailyEnergy;
+        j["user"]["next_energy_refill_seconds"] = state.nextEnergyRefillSeconds;
+
+        return j;
+    }
+
+    inline crow::json::wvalue PrivateUserToJson(const Dto::PrivateUser& user)
+    {
+        crow::json::wvalue j;
+        j["user"]["username"] = user.username;
+        j["user"]["display_name"] = user.displayName;
+        j["user"]["email"] = user.email;
+        j["user"]["avatar_url"] = user.avatarUrl;
+        j["user"]["current_streak"] = user.currentStreak;
+        j["user"]["longest_streak"] = user.longestStreak;
+
+        return j;
+    }
 } // namespace CLingo::Dto

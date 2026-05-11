@@ -19,7 +19,8 @@ namespace CLingo
         pqxx::read_transaction txn{conn.Get()};
 
         auto result{txn.exec(R"(
-                                SELECT id, username, display_name, email, password_hash, is_verified, avatar_url, created_at
+                                SELECT id, username, display_name, email, password_hash, is_verified, avatar_url,
+                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 FROM users
                                 WHERE id = $1 LIMIT 1
                                 )",

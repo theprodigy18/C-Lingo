@@ -15,6 +15,7 @@
 #include <Service/EmailService.hpp>
 #include <Service/OAuthService.hpp>
 #include <Service/AuthService.hpp>
+#include <Service/UserService.hpp>
 #include <Handler/IHandler.hpp>
 
 namespace CLingo
@@ -85,6 +86,7 @@ namespace CLingo
         std::unique_ptr<EmailService> m_EmailService;
         std::unique_ptr<OAuthService> m_OAuthService;
         std::unique_ptr<AuthService> m_AuthService;
+        std::unique_ptr<UserService> m_UserService;
 
         // Handlers
         std::vector<std::unique_ptr<IHandler>> m_Handlers;

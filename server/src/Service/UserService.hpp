@@ -16,8 +16,8 @@ namespace CLingo
     public:
         explicit UserService(UserRepository& userRepository);
 
-        std::optional<Dto::UserState> GetUserState(i32 userId);
-        std::optional<Dto::PrivateUser> GetPrivateUser(i32 userId);
+        std::optional<Dto::UserState> GetUserState(PooledConnection& conn, i32 userId);
+        std::optional<Dto::PrivateUser> GetPrivateUser(PooledConnection& conn, i32 userId);
 
     private:
         UserRepository& m_UserRepo;
