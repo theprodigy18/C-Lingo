@@ -8,6 +8,7 @@
 
 #include <Util/Password.hpp>
 #include <Util/Jwt.hpp>
+#include <Util/Input.hpp>
 #include <Dto/ModelToDtoParser.hpp>
 
 namespace CLingo
@@ -23,9 +24,19 @@ namespace CLingo
         PooledConnection& conn,
         const Dto::RegisterRequest& dto)
     {
-        // TODO: Validate input
+        // Validate input
+        if (!Input::IsValidUsername(dto.username))
+            throw BadRequestError("Invalid username format");
 
-        if (m_AuthRepo.EmailExists(conn, dto.email))
+        auto email{dto.email};
+        email = Input::NormalizeEmail(email);
+        if (!Input::IsValidEmail(email))
+            throw BadRequestError("Invalid email format");
+
+        if (!Input::IsValidPassword(dto.password))
+            throw BadRequestError("Invalid password format");
+
+        if (m_AuthRepo.EmailExists(conn, email))
             throw ConflictError("Email already in use");
 
         if (m_AuthRepo.UsernameExists(conn, dto.username))
@@ -36,7 +47,7 @@ namespace CLingo
             m_AuthRepo.CreateUser(
                 conn,
                 dto.username,
-                dto.email,
+                email,
                 passwordHash)};
         auto otp{GenerateOTP()};
 
@@ -48,7 +59,7 @@ namespace CLingo
             std::chrono::minutes(15));
 
         m_EmailService.SendVerificationEmail(
-            dto.email,
+            email,
             dto.username,
             otp);
     }
@@ -57,9 +68,16 @@ namespace CLingo
         PooledConnection& conn,
         const Dto::LoginRequest& dto)
     {
-        // TODO: Validate input
+        // Validate input
+        auto email{dto.email};
+        email = Input::NormalizeEmail(email);
+        if (!Input::IsValidEmail(email))
+            throw BadRequestError("Invalid email format");
 
-        auto user{m_AuthRepo.FindByEmail(conn, dto.email)};
+        if (!Input::IsValidPassword(dto.password))
+            throw BadRequestError("Invalid password format");
+
+        auto user{m_AuthRepo.FindByEmail(conn, email)};
         if (!user)
             throw UnauthorizedError("Invalid email or password");
 
@@ -80,7 +98,13 @@ namespace CLingo
         PooledConnection& conn,
         const Dto::VerifyEmailRequest& dto)
     {
-        auto user{m_AuthRepo.FindByEmail(conn, dto.email)};
+        // Validate input
+        auto email{dto.email};
+        email = Input::NormalizeEmail(email);
+        if (!Input::IsValidEmail(email))
+            throw BadRequestError("Invalid email format");
+
+        auto user{m_AuthRepo.FindByEmail(conn, email)};
         if (!user)
             throw NotFoundError("User not found");
 
@@ -113,7 +137,13 @@ namespace CLingo
         PooledConnection& conn,
         const Dto::ForgotPasswordRequest& dto)
     {
-        auto user{m_AuthRepo.FindByEmail(conn, dto.email)};
+        // Validate input
+        auto email{dto.email};
+        email = Input::NormalizeEmail(email);
+        if (!Input::IsValidEmail(email))
+            throw BadRequestError("Invalid email format");
+
+        auto user{m_AuthRepo.FindByEmail(conn, email)};
 
         if (!user) // Dont notify if user not found
             return;
@@ -128,7 +158,7 @@ namespace CLingo
             std::chrono::hours(1));
 
         m_EmailService.SendResetPasswordEmail(
-            dto.email,
+            email,
             user->username,
             token);
     }
@@ -159,7 +189,13 @@ namespace CLingo
         PooledConnection& conn,
         const Dto::ResendVerificationEmailRequest& dto)
     {
-        auto user{m_AuthRepo.FindByEmail(conn, dto.email)};
+        // Validate input
+        auto email{dto.email};
+        email = Input::NormalizeEmail(email);
+        if (!Input::IsValidEmail(email))
+            throw BadRequestError("Invalid email format");
+
+        auto user{m_AuthRepo.FindByEmail(conn, email)};
         if (!user || user->isVerified)
             return; // Dont notify if user not found or already verified
 
@@ -173,7 +209,7 @@ namespace CLingo
             std::chrono::minutes(15));
 
         m_EmailService.SendVerificationEmail(
-            dto.email,
+            email,
             user->username,
             otp);
     }
@@ -225,11 +261,25 @@ namespace CLingo
         }
         else // Create new user
         {
+            // Normalize username
+            std::string username{Input::NormalizeUsername(userInfo->username)};
             // Check if username already exists
             // If it does, append random string to username
-            std::string username{userInfo->username};
-            if (m_AuthRepo.UsernameExists(conn, username))
-                username += "_" + GenerateOTP().substr(0, 4);
+            if (username.size() < Input::MIN_USERNAME_LENGTH)
+            {
+                auto suffix{"_" + GenerateOTP().substr(0, 4)};
+
+                username += suffix;
+            }
+            else if (m_AuthRepo.UsernameExists(conn, username))
+            {
+                auto suffix{"_" + GenerateOTP().substr(0, 4)};
+
+                if (username.size() + suffix.size() > Input::MAX_USERNAME_LENGTH)
+                    username.resize(Input::MAX_USERNAME_LENGTH - suffix.size());
+
+                username += suffix;
+            }
 
             user = m_AuthRepo.CreateOAuthUser(
                 conn,
