@@ -15,6 +15,13 @@ namespace CLingo::Model
 {
     inline User MapUser(const pqxx::row& row)
     {
+        std::string timestampStr{row["last_energy_refill"].as<std::string>()};
+
+        std::tm tm{};
+        std::istringstream ss(timestampStr);
+        ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+        auto timePoint{std::chrono::system_clock::from_time_t(std::mktime(&tm))};
+
         return User{
             row["id"].as<i32>(),
             row["username"].as<std::string>(),
@@ -25,7 +32,7 @@ namespace CLingo::Model
             row["avatar_url"].is_null() ? "" : row["avatar_url"].as<std::string>(),
             row["aura"].as<i32>(),
             row["energy"].as<i32>(),
-            row["last_energy_refill"].as<std::chrono::system_clock::time_point>(),
+            timePoint,
             row["current_streak"].as<i32>(),
             row["longest_streak"].as<i32>(),
             row["last_login_date"].is_null() ? "" : row["last_login_date"].as<std::string>(),
