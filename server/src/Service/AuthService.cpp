@@ -64,7 +64,7 @@ namespace CLingo
             throw UnauthorizedError("Invalid email or password");
 
         if (!user->isVerified)
-            throw ForbiddenError("Email not verified");
+            throw ForbiddenError("Email not verified. Please re-register to receive a new verification code.");
 
         if (!Password::Verify(dto.password, user->passwordHash))
             throw UnauthorizedError("Invalid email or password");
@@ -153,6 +153,29 @@ namespace CLingo
             newPasswordHash);
 
         m_AuthRepo.MarkTokenUsed(conn, authToken->id);
+    }
+
+    void AuthService::ResendVerificationEmail(
+        PooledConnection& conn,
+        const Dto::ResendVerificationEmailRequest& dto)
+    {
+        auto user{m_AuthRepo.FindByEmail(conn, dto.email)};
+        if (!user || user->isVerified)
+            return; // Dont notify if user not found or already verified
+
+        auto otp{GenerateOTP()};
+
+        m_AuthRepo.CreateToken(
+            conn,
+            user->id,
+            otp,
+            "email_verification",
+            std::chrono::minutes(15));
+
+        m_EmailService.SendVerificationEmail(
+            dto.email,
+            user->username,
+            otp);
     }
 
     std::string AuthService::GetGoogleAuthUrl() const

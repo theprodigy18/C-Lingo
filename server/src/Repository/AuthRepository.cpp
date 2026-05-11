@@ -46,7 +46,7 @@ namespace CLingo
 
         auto result{txn.exec(R"(
                                 SELECT id, username, display_name, email, password_hash, is_verified, avatar_url,
-                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_data, created_at
+                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 FROM users
                                 WHERE email = $1 LIMIT 1
                                 )",
@@ -71,7 +71,7 @@ namespace CLingo
 
         auto result{txn.exec(R"(
                                 SELECT id, username, display_name, email, password_hash, is_verified, avatar_url,
-                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_data, created_at
+                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 FROM users
                                 WHERE id = $1 LIMIT 1
                                 )",
@@ -98,7 +98,7 @@ namespace CLingo
                                 INSERT INTO users (username, display_name, email, password_hash, is_verified)
                                 VALUES ($1, $1, $2, $3, FALSE)
                                 RETURNING id, username, display_name, email, password_hash, is_verified, avatar_url,
-                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_data, created_at
+                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 )",
                              pqxx::params{username, email, passwordHash})};
 
@@ -145,6 +145,9 @@ namespace CLingo
         auto result{txn.exec(R"(
                                 INSERT INTO auth_tokens(user_id, token, type, expires_at)
                                 VALUES($1, $2, $3, NOW() + $4 * INTERVAL '1 second')
+                                ON CONFLICT (user_id, type) DO UPDATE SET
+                                token = EXCLUDED.token, expires_at = EXCLUDED.expires_at,
+                                used_at = NULL, created_at = NOW()
                                 RETURNING id
                                 )",
                              pqxx::params{userId, token, type, static_cast<i32>(expiresIn.count())})};
@@ -268,7 +271,7 @@ namespace CLingo
                                 INSERT INTO users(username, display_name, is_verified, avatar_url)
                                 VALUES($1, $1, TRUE, $2)
                                 RETURNING id, username, display_name, email, password_hash, is_verified, avatar_url,
-                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_data, created_at
+                                aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 )",
                              pqxx::params{username, avatarUrl})};
 

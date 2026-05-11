@@ -50,6 +50,12 @@ namespace CLingo
                     return HandleResetPassword(req);
                 });
 
+        app.route_dynamic(m_BasePath + "/resend-verification-email")
+            .methods(crow::HTTPMethod::Post)(
+                [this](const crow::request& req) {
+                    return HandleResendVerificationEmail(req);
+                });
+
         // OAuth - redirect to provider
         app.route_dynamic(m_BasePath + "/<string>")
             .methods(crow::HTTPMethod::Get)(
@@ -207,6 +213,30 @@ namespace CLingo
 
         return WithConnection(m_Pool, [&](PooledConnection& conn) {
             m_AuthService.ResetPassword(conn, *dto);
+            return Ok();
+        });
+    }
+
+    crow::response AuthHandler::HandleResendVerificationEmail(const crow::request& req)
+    {
+        if (auto limited{
+                CheckRateLimit(
+                    m_RateLimitCache,
+                    "register:ip:" + req.remote_ip_address,
+                    5,
+                    std::chrono::minutes(15))})
+            return std::move(*limited);
+
+        auto body{ParseJson(req)};
+        if (!body)
+            return BadRequest("Invalid JSON");
+
+        auto dto{Dto::JsonToResendVerificationEmailRequest(*body)};
+        if (!dto)
+            return BadRequest("Email is required");
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            m_AuthService.ResendVerificationEmail(conn, *dto);
             return Ok();
         });
     }

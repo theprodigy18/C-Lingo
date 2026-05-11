@@ -14,6 +14,7 @@
 #include <Dto/Auth/VerifyEmailRequest.hpp>
 #include <Dto/Auth/ForgotPasswordRequest.hpp>
 #include <Dto/Auth/ResetPasswordRequest.hpp>
+#include <Dto/Auth/ResendVerificationEmailRequest.hpp>
 
 namespace CLingo
 {
@@ -43,6 +44,9 @@ namespace CLingo
         void ResetPassword(
             PooledConnection& conn,
             const Dto::ResetPasswordRequest& dto);
+        void ResendVerificationEmail(
+            PooledConnection& conn,
+            const Dto::ResendVerificationEmailRequest& dto);
 
         // OAuth
         std::string GetGoogleAuthUrl() const;

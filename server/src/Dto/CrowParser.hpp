@@ -12,6 +12,7 @@
 #include "Auth/VerifyEmailRequest.hpp"
 #include "Auth/ForgotPasswordRequest.hpp"
 #include "Auth/ResetPasswordRequest.hpp"
+#include "Auth/ResendVerificationEmailRequest.hpp"
 #include "Auth/AuthResponse.hpp"
 
 namespace CLingo::Dto
@@ -83,6 +84,19 @@ namespace CLingo::Dto
         return ResetPasswordRequest{
             .token = j["token"].s(),
             .newPassword = j["new_password"].s(),
+        };
+    }
+
+    inline std::optional<ResendVerificationEmailRequest> JsonToResendVerificationEmailRequest(const crow::json::rvalue& j)
+    {
+        if (!j.has("email"))
+        {
+            LOG_WARN("Missing required fields");
+            return std::nullopt;
+        }
+
+        return ResendVerificationEmailRequest{
+            .email = j["email"].s(),
         };
     }
 
