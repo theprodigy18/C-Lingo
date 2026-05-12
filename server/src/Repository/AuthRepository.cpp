@@ -14,11 +14,11 @@ namespace CLingo
     {
         pqxx::read_transaction txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 SELECT 1 FROM users
                                 WHERE email = $1 LIMIT 1
                                 )",
-                             pqxx::params{email})};
+                                    pqxx::params{email})};
 
         return !result.empty();
     }
@@ -27,11 +27,11 @@ namespace CLingo
     {
         pqxx::read_transaction txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 SELECT 1 FROM users
                                 WHERE username = $1 LIMIT 1
                                 )",
-                             pqxx::params{username})};
+                                    pqxx::params{username})};
 
         return !result.empty();
     }
@@ -44,13 +44,13 @@ namespace CLingo
 
         pqxx::read_transaction txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 SELECT id, username, display_name, email, password_hash, is_verified, avatar_url,
                                 aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 FROM users
                                 WHERE email = $1 LIMIT 1
                                 )",
-                             pqxx::params{email})};
+                                    pqxx::params{email})};
 
         if (result.empty())
             return std::nullopt;
@@ -69,13 +69,13 @@ namespace CLingo
 
         pqxx::read_transaction txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 SELECT id, username, display_name, email, password_hash, is_verified, avatar_url,
                                 aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 FROM users
                                 WHERE id = $1 LIMIT 1
                                 )",
-                             pqxx::params{userId})};
+                                    pqxx::params{userId})};
 
         if (result.empty())
             return std::nullopt;
@@ -94,13 +94,13 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 INSERT INTO users (username, display_name, email, password_hash, is_verified)
                                 VALUES ($1, $1, $2, $3, FALSE)
                                 RETURNING id, username, display_name, email, password_hash, is_verified, avatar_url,
                                 aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 )",
-                             pqxx::params{username, email, passwordHash})};
+                                    pqxx::params{username, email, passwordHash})};
 
         txn.commit();
 
@@ -117,13 +117,13 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                     UPDATE users
                                     SET is_verified = TRUE
                                     WHERE id = $1
                                     RETURNING id
                                     )",
-                             pqxx::params{userId})};
+                                    pqxx::params{userId})};
 
         txn.commit();
 
@@ -142,7 +142,7 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 INSERT INTO auth_tokens(user_id, token, type, expires_at)
                                 VALUES($1, $2, $3, NOW() + $4 * INTERVAL '1 second')
                                 ON CONFLICT (user_id, type) DO UPDATE SET
@@ -150,7 +150,7 @@ namespace CLingo
                                 used_at = NULL, created_at = NOW()
                                 RETURNING id
                                 )",
-                             pqxx::params{userId, token, type, static_cast<i32>(expiresIn.count())})};
+                                    pqxx::params{userId, token, type, static_cast<i32>(expiresIn.count())})};
 
         txn.commit();
 
@@ -165,13 +165,13 @@ namespace CLingo
     {
         pqxx::read_transaction txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 SELECT id, user_id, token, type, expires_at, used_at, created_at
                                 FROM auth_tokens
                                 WHERE token = $1 AND type = $2 
                                 AND used_at IS NULL AND expires_at > NOW() LIMIT 1
                                 )",
-                             pqxx::params{token, type})};
+                                    pqxx::params{token, type})};
 
         if (result.empty())
             return std::nullopt;
@@ -183,13 +183,13 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 UPDATE auth_tokens
                                 SET used_at = NOW()
                                 WHERE id = $1
                                 RETURNING id
                                 )",
-                             pqxx::params{tokenId})};
+                                    pqxx::params{tokenId})};
 
         txn.commit();
 
@@ -201,13 +201,13 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 UPDATE users
                                 SET password_hash = $2
                                 WHERE id = $1
                                 RETURNING id
                                 )",
-                             pqxx::params{userId, passwordHash})};
+                                    pqxx::params{userId, passwordHash})};
 
         txn.commit();
 
@@ -224,12 +224,12 @@ namespace CLingo
     {
         pqxx::read_transaction txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 SELECT id, user_id, provider, provider_id
                                 FROM oauth_accounts
                                 WHERE provider = $1 AND provider_id = $2 LIMIT 1
                                 )",
-                             pqxx::params{provider, providerId})};
+                                    pqxx::params{provider, providerId})};
 
         if (result.empty())
             return std::nullopt;
@@ -245,12 +245,12 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 INSERT INTO oauth_accounts(user_id, provider, provider_id)
                                 VALUES($1, $2, $3)
                                 RETURNING id, user_id, provider, provider_id
                                 )",
-                             pqxx::params{userId, provider, providerId})};
+                                    pqxx::params{userId, provider, providerId})};
 
         txn.commit();
 
@@ -267,13 +267,13 @@ namespace CLingo
     {
         pqxx::work txn{conn.Get()};
 
-        auto result{txn.exec(R"(
+        auto result{txn.exec_params(R"(
                                 INSERT INTO users(username, display_name, is_verified, avatar_url)
                                 VALUES($1, $1, TRUE, $2)
                                 RETURNING id, username, display_name, email, password_hash, is_verified, avatar_url,
                                 aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
                                 )",
-                             pqxx::params{username, avatarUrl})};
+                                    pqxx::params{username, avatarUrl})};
 
         txn.commit();
 
