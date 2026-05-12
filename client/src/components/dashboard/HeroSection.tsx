@@ -6,55 +6,37 @@ interface HeroSectionProps {
 
 export default function HeroSection({ user }: HeroSectionProps) {
   return (
-    <section className="px-10 pt-28 pb-6">
-      <div className="max-w-5xl mx-auto flex items-center gap-7">
-        {/* Avatar — large circle with cyan border + glow */}
-        <div className="shrink-0">
-          <div
-            className="w-24 h-24 rounded-full overflow-hidden"
-            style={{
-              border: "3px solid #00c8f0",
-              boxShadow:
-                "0 0 0 4px rgba(0,200,240,0.15), 0 0 24px rgba(0,200,240,0.3)",
-            }}
-          >
+    <section className="px-6 pb-24 pt-32 sm:px-10 sm:pb-32 sm:pt-40">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 sm:flex-row sm:gap-12">
+        <div className="flex shrink-0 flex-col items-center gap-4">
+          <div className="h-40 w-40 overflow-hidden rounded-full bg-[#00569a] shadow-[0_8px_18px_rgba(10,24,42,0.35)] sm:h-56 sm:w-56">
             {user.avatar_url ? (
               <img
                 src={user.avatar_url}
                 alt={user.display_name}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
             ) : (
-              <div
-                className="w-full h-full flex items-center justify-center text-3xl font-black text-white"
-                style={{
-                  background: "linear-gradient(135deg, #1e4d8c, #0d2a50)",
-                }}
-              >
+              <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_35%_25%,#1cb4f5_0,#00579b_44%,#004477_100%)] text-7xl font-black text-white">
                 {user.display_name.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
-        </div>
-
-        {/* Text */}
-        <div className="flex flex-col gap-1.5">
-          <h1
-            className="text-3xl font-extrabold text-white"
-            style={{ fontFamily: "'Poppins', sans-serif" }}
-          >
-            Welcome <span className="text-[#00c8f0]">{user.display_name}</span>
-          </h1>
-          <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-            Increase your experience and skills and win all the existing awards
-          </p>
           <button
             disabled
-            className="mt-1 self-start rounded-full px-5 py-1.5 text-xs font-semibold text-slate-300 cursor-not-allowed"
-            style={{ border: "1px solid rgba(255,255,255,0.2)" }}
+            className="rounded-full border border-white px-4 py-1 text-xs font-bold text-white opacity-95"
           >
-            Edit Profile
+            Edit Profil
           </button>
+        </div>
+
+        <div className="text-center sm:text-left">
+          <h1 className="text-4xl font-extrabold leading-tight text-[#23d7ff] sm:text-5xl lg:text-6xl">
+            Welcome {user.display_name}
+          </h1>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/90">
+            increase your experience and skills and win all the existing awards
+          </p>
         </div>
       </div>
     </section>

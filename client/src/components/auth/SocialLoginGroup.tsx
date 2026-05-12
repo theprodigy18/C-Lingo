@@ -9,6 +9,7 @@ interface SocialButtonProps {
 function SocialButton({ onClick, children, label }: SocialButtonProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
       aria-label={label}
       className="flex items-center justify-center w-20 h-16 rounded-2xl bg-white border border-slate-200
@@ -68,20 +69,18 @@ function GitHubIcon() {
 interface SocialLoginGroupProps {
   onGoogleLogin?: () => void;
   onGitHubLogin?: () => void;
+  label?: string;
 }
 
 export default function SocialLoginGroup({
   onGoogleLogin,
   onGitHubLogin,
+  label = "Or login with",
 }: SocialLoginGroupProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-slate-200" />
-        <span className="text-xs text-slate-400 font-medium">
-          Or login with
-        </span>
-        <div className="flex-1 h-px bg-slate-200" />
+      <div className="flex items-center justify-center text-xs text-gray-400">
+        <span>{label}</span>
       </div>
 
       <div className="flex justify-center gap-4">

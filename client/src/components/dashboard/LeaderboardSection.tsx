@@ -15,44 +15,33 @@ interface LeaderboardSectionProps {
   onSeeAll?: () => void;
 }
 
+function formatAura(aura: number) {
+  return aura.toLocaleString("id-ID");
+}
+
 function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
   const isFirst = entry.rank === 1;
+
   return (
     <div
-      className="flex items-center justify-between px-5 py-3.5 rounded-xl"
-      style={{
-        background: isFirst
-          ? "linear-gradient(90deg, #2a5298 0%, #1e3f7a 100%)"
-          : "transparent",
-      }}
+      className="grid grid-cols-[34px_48px_1fr_auto] items-center gap-5 rounded-2xl px-5 py-3 text-white sm:px-7"
+      style={{ background: isFirst ? "#68a6e0" : "transparent" }}
     >
-      <div className="flex items-center gap-4">
-        <span
-          className="font-bold text-sm w-5 text-center"
-          style={{ color: isFirst ? "#ffffff" : "#94a3b8" }}
-        >
-          {entry.rank}
-        </span>
-        <div
-          className="w-8 h-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center text-xs font-bold text-white"
-          style={{ background: "#1e3f7a" }}
-        >
-          {entry.avatar_url ? (
-            <img
-              src={entry.avatar_url}
-              alt={entry.display_name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            entry.display_name.charAt(0).toUpperCase()
-          )}
-        </div>
-        <span className="text-sm font-medium text-white">
-          {entry.display_name}
-        </span>
+      <span className="text-center text-2xl font-bold">{entry.rank}</span>
+      <div className="h-10 w-10 overflow-hidden rounded-full bg-[#00579b]">
+        {entry.avatar_url && (
+          <img
+            src={entry.avatar_url}
+            alt={entry.display_name}
+            className="h-full w-full object-cover"
+          />
+        )}
       </div>
-      <span className="text-sm font-semibold text-white">
-        {entry.aura.toLocaleString()} Aura
+      <span className="truncate text-xl font-medium sm:text-2xl">
+        {entry.display_name}
+      </span>
+      <span className="text-right text-base sm:text-xl">
+        {formatAura(entry.aura)} Aura
       </span>
     </div>
   );
@@ -64,7 +53,7 @@ export default function LeaderboardSection({
   onSeeAll,
 }: LeaderboardSectionProps) {
   return (
-    <section id="leaderboard" className="scroll-mt-36">
+    <section id="leaderboard" className="scroll-mt-40">
       <SectionHeader
         title="Leaderboard"
         sectionId="leaderboard"
@@ -72,17 +61,14 @@ export default function LeaderboardSection({
         onSeeAll={onSeeAll}
       />
       <div
-        className="rounded-3xl overflow-hidden py-2"
-        style={{
-          background: "linear-gradient(160deg, #1a3a64 0%, #112a4e 100%)",
-          border: "2px solid #00c8f0",
-          boxShadow:
-            "0 0 32px rgba(0,200,240,0.2), inset 0 0 40px rgba(0,100,180,0.1)",
-        }}
+        className="rounded-[48px] bg-[#547293] p-8"
+        style={{ boxShadow: "0 0 46px rgba(35,215,255,0.85)" }}
       >
-        {entries.map((entry) => (
-          <LeaderboardRow key={entry.rank} entry={entry} />
-        ))}
+        <div className="space-y-1">
+          {entries.map((entry) => (
+            <LeaderboardRow key={entry.rank} entry={entry} />
+          ))}
+        </div>
       </div>
     </section>
   );

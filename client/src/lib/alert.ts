@@ -40,6 +40,42 @@ export function showModal({
 }
 
 // ─────────────────────────────────────────────
+// Loading modal — blocking, centered, use case: pending requests
+// with no action button until the request resolves
+// ─────────────────────────────────────────────
+interface LoadingModalOptions {
+  title?: string;
+  text?: string;
+}
+
+export function showLoadingModal({
+  title = "Please wait",
+  text = "Processing your request...",
+}: LoadingModalOptions = {}) {
+  return Swal.fire({
+    title,
+    text,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    buttonsStyling: false,
+    customClass: {
+      popup: "!rounded-2xl !px-8 !py-8 !shadow-2xl",
+      title: "!text-[#1a2e4a] !font-bold !text-2xl !font-[Poppins]",
+      htmlContainer: "!text-slate-500 !text-sm",
+      loader: "!border-[#00c8f0]",
+    },
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+}
+
+export function hideLoadingModal() {
+  Swal.close();
+}
+
+// ─────────────────────────────────────────────
 // Toast — non-blocking, corner pop-up
 // use case: errors, warnings, info snippets
 // ─────────────────────────────────────────────

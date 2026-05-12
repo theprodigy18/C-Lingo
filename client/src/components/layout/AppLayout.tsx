@@ -15,8 +15,11 @@ export default function AppLayout({
 }: AppLayoutProps) {
   return (
     <div
-      className="min-h-screen flex flex-col"
-      style={{ background: "#1a2f4a" }}
+      className="min-h-screen flex flex-col text-white"
+      style={{
+        background:
+          "linear-gradient(180deg, #234f78 0%, #203f63 34%, #16243b 82%, #111827 100%)",
+      }}
     >
       <Header aura={aura} energy={energy} />
       <main className="flex-1">{children}</main>

@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 
-export type TabId = "course" | "daily-streak" | "practice" | "leaderboard";
+export type TabId =
+  | "course"
+  | "daily-streak"
+  | "coding-practice"
+  | "leaderboard";
 
 const TABS: { label: string; id: TabId }[] = [
   { label: "Course", id: "course" },
   { label: "Daily Streak", id: "daily-streak" },
-  { label: "Practice", id: "practice" },
+  { label: "Coding Practice", id: "coding-practice" },
   { label: "Leaderboard", id: "leaderboard" },
 ];
 
@@ -19,7 +23,7 @@ export default function TabNav({ activeSection, onTabClick }: TabNavProps) {
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({
     course: null,
     "daily-streak": null,
-    practice: null,
+    "coding-practice": null,
     leaderboard: null,
   });
 
@@ -44,25 +48,20 @@ export default function TabNav({ activeSection, onTabClick }: TabNavProps) {
   }, [activeSection]);
 
   return (
-    <div
-      className="sticky top-16.25 z-40"
-      style={{
-        background: "rgba(20, 38, 65, 0.97)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-      }}
-    >
-      <div className="max-w-5xl mx-auto px-10 py-3">
-        <div className="relative flex items-center gap-1">
+    <div className="sticky top-[68px] z-40 bg-[#213f62]/90 backdrop-blur-xl border-y border-white/15">
+      <div className="mx-auto max-w-6xl px-6 py-8 sm:px-10">
+        <div className="relative flex w-full items-center gap-2 overflow-x-auto py-2 sm:gap-5">
           {/* Sliding border indicator */}
           <div
-            className="absolute top-0 h-full rounded-full pointer-events-none"
+            className="pointer-events-none absolute top-2 h-[44px] rounded-full"
             style={{
               left: indicatorStyle.left,
               width: indicatorStyle.width,
-              border: "1.5px solid #00c8f0",
+              border: "2px solid rgba(255,255,255,0.95)",
+              background: "rgba(255,255,255,0.04)",
+              boxShadow: "0 0 28px rgba(0,200,240,0.7)",
               transition:
-                "left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1)",
+                "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
             }}
           />
           {TABS.map((tab) => (
@@ -72,9 +71,9 @@ export default function TabNav({ activeSection, onTabClick }: TabNavProps) {
                 tabRefs.current[tab.id] = el;
               }}
               onClick={() => onTabClick(tab.id)}
-              className="relative z-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200"
+              className="relative z-10 h-[44px] shrink-0 rounded-full px-7 text-lg font-extrabold text-white transition-colors duration-200"
               style={{
-                color: activeSection === tab.id ? "#00c8f0" : "#94a3b8",
+                color: activeSection === tab.id ? "#23d7ff" : "#ffffff",
               }}
             >
               {tab.label}

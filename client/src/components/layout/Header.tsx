@@ -16,49 +16,39 @@ export default function Header({ aura, energy }: HeaderProps) {
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4"
+      className="fixed left-0 right-0 top-0 z-50"
       style={{
-        background: "rgba(20, 40, 68, 0.95)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        background: "rgba(35, 79, 120, 0.82)",
+        backdropFilter: "blur(14px)",
       }}
     >
-      {/* Logo */}
-      <span
-        className="text-xl font-bold tracking-tight"
-        style={{ fontFamily: "'MuseoModerno', cursive" }}
-      >
-        <span className="text-[#00c8f0]">C</span>
-        <span className="text-white">Lingo</span>
-      </span>
-
-      {/* Right */}
-      <div className="flex items-center gap-3">
-        {/* Aura pill */}
-        <div
-          className="flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white"
-          style={{ background: "#1e4d8c", border: "1px solid #2a6bc2" }}
+      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-6 sm:px-10">
+        <span
+          className="text-xl font-extrabold tracking-tight"
+          style={{ fontFamily: "'MuseoModerno', cursive" }}
         >
-          <span className="text-[#00c8f0] text-xs">●</span>
-          <span>{aura} Aura</span>
+          <span className="text-[#23d7ff]">C</span>
+          <span className="text-white">linggo</span>
+        </span>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-8 items-center gap-2 rounded-full bg-white px-3 text-sm font-bold text-[#1f4166]">
+            <span className="text-red-500">{aura}</span>
+            <span>Aura</span>
+          </div>
+
+          <div className="flex h-8 items-center gap-2 rounded-full bg-white px-3 text-sm font-bold text-[#1f4166]">
+            <span>{energy}</span>
+            <span className="text-[#23d7ff]">⚡</span>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-full px-3 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:bg-white/10 hover:text-[#23d7ff]"
+          >
+            Logout
+          </button>
         </div>
-
-        {/* Energy pill */}
-        <div
-          className="flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white"
-          style={{ background: "#1e4d8c", border: "1px solid #2a6bc2" }}
-        >
-          <span>⚡</span>
-          <span>{energy}</span>
-        </div>
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="text-sm text-slate-300 hover:text-white px-3 py-1.5 rounded-full hover:bg-white/10 transition-all duration-200"
-        >
-          Logout
-        </button>
       </div>
     </header>
   );

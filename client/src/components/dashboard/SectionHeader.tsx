@@ -21,12 +21,12 @@ export default function SectionHeader({
   const isActive = sectionId === activeSection;
 
   return (
-    <div className="flex items-center justify-between mb-5 scroll-mt-36">
+    <div className="mb-8 flex items-center justify-between scroll-mt-40">
       <h2
-        className="text-lg font-bold transition-colors duration-300"
+        className="text-2xl font-extrabold transition-colors duration-300"
         style={{
           fontFamily: "'Poppins', sans-serif",
-          color: isActive ? "#00c8f0" : "#ffffff",
+          color: isActive ? "#23d7ff" : "#ffffff",
         }}
       >
         {title}
@@ -34,7 +34,7 @@ export default function SectionHeader({
       {onSeeAll && (
         <button
           onClick={onSeeAll}
-          className="text-sm text-white hover:text-[#00c8f0] transition-colors"
+          className="text-xl font-medium text-white transition-colors hover:text-[#23d7ff]"
         >
           See All
         </button>

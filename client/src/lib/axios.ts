@@ -17,7 +17,12 @@ api.interceptors.request.use((config) => {
 
 // Handle 401 globally — redirect to sign-in
 // Skip auth endpoints so login/register errors are handled by the page itself
-const AUTH_ENDPOINTS = ["/auth/login", "/auth/register"];
+const AUTH_ENDPOINTS = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/resend-verification-email",
+  "/auth/verify-email",
+];
 
 api.interceptors.response.use(
   (response) => response,

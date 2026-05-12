@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In - CLingo</title>
+<!-- Google Fonts: MuseoModerno and Poppins -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@700&amp;family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'museo': ['MuseoModerno', 'cursive'],
+            'poppins': ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            'clingo-blue': '#00B4D8',
+            'clingo-dark': '#1A2E44',
+            'clingo-input': '#F5F6F8',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Custom background gradient matching the reference image */
+    .bg-main-gradient {
+      background: radial-gradient(circle at 70% 50%, #1e3a5f 0%, #0d1b2a 100%);
+    }
+
+    /* Glowing card effect */
+    .glowing-card {
+      box-shadow: 0 0 50px 10px rgba(0, 180, 216, 0.4);
+      border-radius: 4rem;
+    }
+
+    /* Specific spacing for input fields */
+    .input-field {
+      @apply w-full py-4 px-6 bg-[#F5F6F8] border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-clingo-blue transition-all;
+    }
+  </style>
+</head>
+<body class="bg-main-gradient min-h-screen flex items-center justify-center p-4">
+<!-- BEGIN: MainContainer -->
+<main class="container mx-auto max-w-7xl flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8" data-purpose="page-wrapper">
+<!-- BEGIN: LeftContentSection -->
+<section class="w-full lg:w-1/2 text-white space-y-8 px-4 lg:px-0" data-purpose="brand-introduction">
+<!-- Brand Logo -->
+<div class="flex items-center space-x-2" data-purpose="logo-container">
+<div class="w-8 h-8 flex items-center justify-center">
+<svg class="w-full h-full fill-clingo-blue" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7L12 12L22 7L12 2Z"></path>
+<path d="M2 17L12 22L22 17"></path>
+<path d="M2 12L12 17L22 12"></path>
+</svg>
+</div>
+<h1 class="font-museo text-4xl font-bold tracking-tight">CLingo</h1>
+</div>
+<!-- Hero Text -->
+<div class="max-w-xl space-y-6">
+<h2 class="text-5xl lg:text-6xl font-bold leading-tight">
+          Make Coding Your <br/>
+<span class="text-clingo-blue">Playground</span>
+</h2>
+<p class="text-lg text-gray-300 font-light leading-relaxed">
+          Improve your coding skills more quickly with an interactive and adaptive game-based learning method, designed to help you grasp concepts easily and in greater depth
+        </p>
+</div>
+</section>
+<!-- END: LeftContentSection -->
+<!-- BEGIN: SignInCard -->
+<section class="w-full lg:w-[540px] bg-white rounded-[4rem] p-10 lg:p-16 glowing-card" data-purpose="auth-card">
+<div class="flex flex-col items-center text-center space-y-8">
+<!-- Form Header -->
+<div class="space-y-2">
+<h2 class="text-4xl font-bold text-[#1A2E44]">Sign In</h2>
+<p class="text-gray-400 text-sm px-8">To access a more complete experience enter your email and password</p>
+</div>
+<!-- Form Inputs -->
+<form action="#" class="w-full space-y-5" data-purpose="sign-in-form" method="POST">
+<div class="space-y-4">
+<input class="w-full py-4 px-6 bg-[#F5F6F8] border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-clingo-blue transition-all" placeholder="Email" required="" type="email"/>
+<input class="w-full py-4 px-6 bg-[#F5F6F8] border-none rounded-2xl text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-clingo-blue transition-all" placeholder="Password" required="" type="password"/>
+</div>
+<!-- Secondary Links -->
+<div class="flex justify-between text-xs font-semibold px-1">
+<a class="text-[#1A2E44] hover:text-clingo-blue transition-colors" href="#">Forgot Password?</a>
+<a class="text-[#1A2E44] hover:text-clingo-blue transition-colors" href="#">Create Account</a>
+</div>
+<!-- Submit Button -->
+<button class="w-full py-4 bg-[#1A2E44] text-white rounded-2xl font-semibold hover:bg-slate-800 transition-colors mt-4" type="submit">
+            Continue
+          </button>
+</form>
+<!-- Social Login Separator -->
+<div class="w-full flex items-center justify-center space-x-2 text-gray-400 text-xs py-2">
+<span>Or Register with</span>
+</div>
+<!-- Social Login Icons -->
+<div class="flex space-x-6" data-purpose="social-buttons">
+<!-- Google -->
+<button class="w-16 h-16 flex items-center justify-center bg-white rounded-2xl shadow-md border border-gray-50 hover:shadow-lg transition-shadow">
+<img alt="Google Logo" class="w-8 h-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANpGsgq4j3i6Ox8dhez3074koh4mePmNX0kjewTG1YAwBNmDBNcNSGUw9-YlSbHaX_t_rUpS-HvceW_dzZ6CwFygauMjnIFLKg5RVBIyL_zAHBmiKt_hJGqAO2CzvrmowA9xmiZxZjj4UihkhFWEWXMqtESt_sfhpIkRzaYqOlXqtTbVdzEEoxrlQ6FeWrmCSR-7Lx5nNtIBCCZP1oiuExoHkj8iPO1AKPJW_G_k8YtOIEgJMT3epqDifDIowFkxlQ3hHj0Ksu"/>
+</button>
+<!-- GitHub (Replaced Apple/Facebook as per instruction) -->
+<button class="w-16 h-16 flex items-center justify-center bg-white rounded-2xl shadow-md border border-gray-50 hover:shadow-lg transition-shadow">
+<img alt="GitHub Logo" class="w-8 h-8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm_P12YJrC02O5o2diIIORkRF43ar2k2Mk8QqZHEkQMQueXpyi7fEzhh-Qk2ERn1cnpqiPm6GtZZvmjr4jC99oMwNq194rwqiGlREC-Ou8dvGiDCq3g_WjnT5ZvUA0Q-iz0Baj25x_XbPf9S5qac7cIAz0mHlTCXl3hljg-RpNsuHtB5k8F4o2kqctdCHYxBdMSqdoX0hratURQZQQmeA4Xvm0Ms_No9OVR1lG81QuBg3Qk77cGXf9BIkhqXGLybiHOIq1xFfM"/>
+</button>
+</div>
+</div>
+</section>
+<!-- END: SignInCard -->
+</main>
+<!-- END: MainContainer -->
+</body></html>

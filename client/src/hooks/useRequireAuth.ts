@@ -1,21 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { isTokenValid, clearAuth } from "../lib/token";
+import { clearAuth, isTokenValid } from "../lib/token";
 
 export function useRequireAuth() {
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
+  const token = localStorage.getItem("token");
+  const isAuthenticated = Boolean(token && isTokenValid(token));
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    if (isAuthenticated) return;
 
-    if (!token || !isTokenValid(token)) {
-      clearAuth();
-      navigate("/sign-in", { replace: true });
-    } else {
-      setChecking(false);
-    }
-  }, [navigate]);
+    clearAuth();
+    navigate("/sign-in", { replace: true });
+  }, [isAuthenticated, navigate]);
 
-  return { checking };
+  return { checking: !isAuthenticated };
 }

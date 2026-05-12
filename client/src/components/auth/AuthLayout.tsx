@@ -7,23 +7,12 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden"
+      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden p-4"
       style={{
         background:
-          "linear-gradient(135deg, #0f2744 0%, #1a3a5c 40%, #0d2035 100%)",
+          "radial-gradient(circle at 70% 50%, #1e3a5f 0%, #0d1b2a 100%)",
       }}
     >
-      {/* Cyan glow top-right — matches Figma */}
-      <div
-        className="pointer-events-none absolute top-0 right-0 w-150 h-100 rounded-full opacity-30"
-        style={{
-          background:
-            "radial-gradient(ellipse at top right, #00d4ff 0%, transparent 65%)",
-          filter: "blur(40px)",
-        }}
-      />
-
-      {/* Subtle noise texture overlay */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.03]"
         style={{
@@ -32,42 +21,40 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         }}
       />
 
-      {/* Two-column layout */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-8 flex flex-col lg:flex-row items-center justify-between gap-12 py-12">
-        {/* ── Left panel: branding ── */}
-        <div className="flex-1 flex flex-col gap-8">
-          {/* Logo */}
-          <div className="flex items-center">
+      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-12 py-10 lg:flex-row lg:gap-8">
+        <section className="w-full space-y-8 px-2 text-white lg:w-1/2 lg:px-0">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center">
+              <svg viewBox="0 0 24 24" className="h-full w-full fill-[#00b4d8]">
+                <path d="M12 2 2 7l10 5 10-5-10-5Z" />
+                <path d="m2 17 10 5 10-5" />
+                <path d="m2 12 10 5 10-5" />
+              </svg>
+            </div>
             <span
-              className="font-bold text-[32px] tracking-tight"
+              className="text-4xl font-bold tracking-tight"
               style={{ fontFamily: "'MuseoModerno', cursive" }}
             >
-              <span className="text-[#2BD1FF]">C</span>
-              <span className="text-white">Lingo</span>
+              CLingo
             </span>
           </div>
 
-          {/* Tagline */}
-          <div className="space-y-4 max-w-sm">
-            <h1
-              className="text-4xl font-extrabold leading-tight text-[#2BD1FF]"
-              style={{ fontFamily: "'Poppins', sans-serif" }}
-            >
+          <div className="max-w-xl space-y-6">
+            <h1 className="text-5xl font-bold leading-tight lg:text-6xl">
               Make Coding Your
               <br />
-              Playground
+              <span className="text-[#00b4d8]">Playground</span>
             </h1>
-            <p className="text-slate-300 text-base leading-relaxed">
+            <p className="text-lg font-light leading-relaxed text-gray-300">
               Improve your coding skills more quickly with an interactive and
               adaptive game-based learning method, designed to help you grasp
               concepts easily and in greater depth
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* ── Right panel: auth card ── */}
-        <div className="w-full max-w-md">{children}</div>
-      </div>
+        <section className="w-full lg:w-[540px]">{children}</section>
+      </main>
     </div>
   );
 }

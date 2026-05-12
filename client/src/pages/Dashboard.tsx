@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { User } from "../types/auth";
+import type { Problem, User } from "../types/auth";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import AppLayout from "../components/layout/AppLayout";
 import HeroSection from "../components/dashboard/HeroSection";
@@ -24,48 +24,76 @@ const MOCK_STREAKS = Array.from({ length: 7 }, (_, i) => ({
   available: i === 0,
 }));
 
-const MOCK_CHALLENGES = [
+const MOCK_PROBLEMS: Problem[] = [
   {
     id: 1,
     title: "Hello World",
-    description: "Print 'Hello, World!' to the standard output.",
-    difficulty: "Easy" as const,
-    tags: ["I/O", "Basics"],
-    solved: true,
+    slug: "hello-world",
+    description_md: "Print Hello, World! to the standard output.",
+    constraints_md: "Use C and return 0 from main.",
+    starter_code: '#include <stdio.h>\n\nint main() {\n    return 0;\n}',
+    difficulty: "easy",
+    energy_cost: 5,
+    aura_reward: 100,
+    is_published: true,
+    created_at: "2026-05-12T00:00:00Z",
+    submission_status: "accepted",
   },
   {
     id: 2,
     title: "Sum of Two Integers",
-    description:
-      "Given two integers a and b, return their sum without using + or -.",
-    difficulty: "Easy" as const,
-    tags: ["Math", "Bit Manipulation"],
-    solved: false,
+    slug: "sum-of-two-integers",
+    description_md:
+      "Read two integers from input and print their sum without extra text.",
+    constraints_md: "-10^9 <= a, b <= 10^9",
+    starter_code: '#include <stdio.h>\n\nint main() {\n    return 0;\n}',
+    difficulty: "easy",
+    energy_cost: 5,
+    aura_reward: 100,
+    is_published: true,
+    created_at: "2026-05-12T00:00:00Z",
+    submission_status: "wrong_answer",
   },
   {
     id: 3,
     title: "Reverse a String",
-    description: "Write a function that reverses a string in-place.",
-    difficulty: "Easy" as const,
-    tags: ["String", "Array"],
-    solved: false,
+    slug: "reverse-a-string",
+    description_md: "Reverse the provided string and print the result.",
+    constraints_md: "1 <= length <= 10^5",
+    starter_code: '#include <stdio.h>\n\nint main() {\n    return 0;\n}',
+    difficulty: "easy",
+    energy_cost: 5,
+    aura_reward: 120,
+    is_published: true,
+    created_at: "2026-05-12T00:00:00Z",
   },
   {
     id: 4,
     title: "FizzBuzz",
-    description:
-      "Print numbers 1 to n, replacing multiples of 3 with Fizz, 5 with Buzz.",
-    difficulty: "Medium" as const,
-    tags: ["Math", "Simulation"],
-    solved: false,
+    slug: "fizzbuzz",
+    description_md:
+      "Print numbers from 1 to n, replacing multiples of 3 with Fizz and multiples of 5 with Buzz.",
+    constraints_md: "1 <= n <= 10^4",
+    starter_code: '#include <stdio.h>\n\nint main() {\n    return 0;\n}',
+    difficulty: "medium",
+    energy_cost: 8,
+    aura_reward: 180,
+    is_published: true,
+    created_at: "2026-05-12T00:00:00Z",
   },
   {
     id: 5,
     title: "Linked List Cycle",
-    description: "Detect if a linked list has a cycle using Floyd's algorithm.",
-    difficulty: "Hard" as const,
-    tags: ["Linked List", "Two Pointers"],
-    solved: false,
+    slug: "linked-list-cycle",
+    description_md:
+      "Determine whether a linked list contains a cycle using an efficient approach.",
+    constraints_md: "0 <= node count <= 10^5",
+    starter_code: "int hasCycle(struct ListNode *head) {\n    return 0;\n}",
+    difficulty: "hard",
+    energy_cost: 12,
+    aura_reward: 300,
+    is_published: true,
+    created_at: "2026-05-12T00:00:00Z",
   },
 ];
 
@@ -86,7 +114,7 @@ const SCROLL_OFFSET = 160;
 const SECTION_IDS: TabId[] = [
   "course",
   "daily-streak",
-  "practice",
+  "coding-practice",
   "leaderboard",
 ];
 
@@ -141,8 +169,8 @@ function DashboardContent() {
     toast.success(`Day ${day} streak claimed!`);
   };
 
-  const handleSolve = (_id: number) => {
-    toast.info("Problem editor coming soon!");
+  const handleSolve = (problem: Problem) => {
+    toast.info(`${problem.title} editor coming soon!`);
   };
 
   return (
@@ -150,7 +178,7 @@ function DashboardContent() {
       <HeroSection user={user} />
       <TabNav activeSection={activeSection} onTabClick={handleTabClick} />
 
-      <div className="max-w-5xl mx-auto px-8 py-10 flex flex-col gap-14">
+      <div className="mx-auto flex max-w-6xl flex-col gap-28 px-6 py-20 sm:px-10">
         <CourseSection
           courses={MOCK_COURSES}
           activeSection={activeSection}
@@ -163,7 +191,7 @@ function DashboardContent() {
           onClaim={handleClaim}
         />
         <PracticeSection
-          challenges={MOCK_CHALLENGES}
+          problems={MOCK_PROBLEMS}
           activeSection={activeSection}
           onSeeAll={() => toast.info("Coming soon!")}
           onSolve={handleSolve}

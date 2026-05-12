@@ -14,6 +14,21 @@ interface DailyStreakSectionProps {
   onClaim: (day: number) => void;
 }
 
+function SmallLock() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M8 10V8a4 4 0 0 1 8 0v2"
+        stroke="white"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <rect x="6" y="10" width="12" height="10" rx="3" fill="white" />
+      <circle cx="12" cy="15" r="1.5" fill="#d59c35" />
+    </svg>
+  );
+}
+
 function StreakDayCard({
   streak,
   onClaim,
@@ -21,55 +36,35 @@ function StreakDayCard({
   streak: StreakDay;
   onClaim: (day: number) => void;
 }) {
-  const isDay1 = streak.day === 1;
+  const available = streak.available && !streak.claimed;
+
   return (
-    <div className="flex flex-col items-center gap-2 shrink-0">
+    <div className="flex min-w-[112px] flex-col items-center gap-4">
       <div
-        className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center"
+        className="flex h-[78px] w-[104px] items-center justify-center rounded-[28px] border-[6px] border-[#5f7fa4] bg-[#547293]"
         style={{
-          background:
-            isDay1 && streak.available
-              ? "linear-gradient(135deg, #1e3a6e, #162d57)"
-              : "#1e3050",
-          border:
-            isDay1 && streak.available
-              ? "1px solid rgba(255,180,0,0.5)"
-              : "1px solid rgba(255,255,255,0.08)",
-          boxShadow:
-            isDay1 && streak.available
-              ? "0 0 16px rgba(255,180,0,0.2)"
-              : "none",
+          boxShadow: available ? "0 0 26px rgba(35,215,255,0.85)" : "none",
         }}
       >
-        {isDay1 && streak.available ? (
-          <span className="text-2xl">⚡</span>
+        {streak.day === 1 ? (
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-full border-4 border-[#23d7ff] text-3xl">
+            <span className="text-[#ffb13b]">⚡</span>
+          </div>
         ) : (
-          <>
-            <span className="text-slate-500 text-base">🔒</span>
-            <p className="text-[10px] text-slate-500 font-medium mt-0.5">
-              Day {streak.day}
-            </p>
-          </>
+          <div className="flex flex-col items-center gap-1 text-white">
+            <SmallLock />
+            <span className="text-sm font-extrabold">Day {streak.day}</span>
+          </div>
         )}
       </div>
       <button
-        onClick={() =>
-          streak.available && !streak.claimed && onClaim(streak.day)
-        }
-        disabled={streak.claimed || !streak.available}
-        className="text-xs font-semibold px-4 py-1 rounded-full transition-all duration-200"
+        onClick={() => available && onClaim(streak.day)}
+        disabled={!available}
+        className="rounded-full border border-white px-5 py-1 text-xs font-bold transition-colors"
         style={{
-          background:
-            streak.available && !streak.claimed
-              ? "#1e3a6e"
-              : "rgba(255,255,255,0.04)",
-          border:
-            streak.available && !streak.claimed
-              ? "1px solid rgba(255,255,255,0.2)"
-              : "1px solid rgba(255,255,255,0.06)",
-          color: streak.available && !streak.claimed ? "#ffffff" : "#475569",
-          cursor:
-            streak.available && !streak.claimed ? "pointer" : "not-allowed",
+          background: available ? "#ffffff" : "transparent",
+          color: available ? "#244668" : "#23d7ff",
+          cursor: available ? "pointer" : "not-allowed",
         }}
       >
         {streak.claimed ? "Claimed" : "Claim"}
@@ -85,14 +80,14 @@ export default function DailyStreakSection({
   onClaim,
 }: DailyStreakSectionProps) {
   return (
-    <section id="daily-streak" className="scroll-mt-36">
+    <section id="daily-streak" className="scroll-mt-40">
       <SectionHeader
         title="Daily Streak"
         sectionId="daily-streak"
         activeSection={activeSection}
         onSeeAll={onSeeAll}
       />
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex gap-7 overflow-x-auto pb-2">
         {streaks.map((streak) => (
           <StreakDayCard key={streak.day} streak={streak} onClaim={onClaim} />
         ))}
