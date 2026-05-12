@@ -9,10 +9,8 @@ export default function InputField({ placeholder, ...props }: InputFieldProps) {
     <input
       {...props}
       placeholder={placeholder}
-      className="w-full rounded-full bg-slate-100 px-5 py-3.5 text-sm text-slate-700 placeholder-slate-400
-        outline-none border border-transparent
-        focus:border-[#00c8f0] focus:bg-white focus:ring-2 focus:ring-[#00c8f0]/20
-        transition-all duration-200"
+      className="w-full rounded-2xl border-none bg-[#f5f6f8] px-6 py-4 text-sm text-gray-700 placeholder-gray-400
+        outline-none transition-all duration-200 focus:bg-white focus:ring-2 focus:ring-[#00b4d8]"
     />
   );
 }
