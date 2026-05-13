@@ -64,6 +64,8 @@ namespace CLingo
 
         if (result.empty())
             throw InternalError("Failed to claim energy");
+
+        m_UserCache.Invalidate(userId);
     }
 
     void UserRepository::EditProfile(PooledConnection& conn, i32 userId, const std::string& username, const std::string& displayName)
@@ -82,6 +84,26 @@ namespace CLingo
 
         if (result.empty())
             throw InternalError("Failed to update user profile");
+
+        m_UserCache.Invalidate(userId);
+    }
+
+    void UserRepository::UpdateLastLoginDate(PooledConnection& conn, i32 userId)
+    {
+        pqxx::work txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                                    UPDATE users
+                                    SET last_login_date = NOW()
+                                    WHERE id = $1
+                                    RETURNING id
+                                    )",
+                                    pqxx::params{userId})};
+
+        txn.commit();
+
+        if (result.empty())
+            throw InternalError("Failed to update last login date");
 
         m_UserCache.Invalidate(userId);
     }

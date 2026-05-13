@@ -140,15 +140,36 @@ body {
 }
 
 .clingo-swal-toast {
-  width: min(92vw, 380px);
+  width: min(92vw, 380px) !important;
   border-radius: 18px;
   padding: 0.85rem 1rem;
+  background: linear-gradient(180deg, #102b46 0%, #0b1e33 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
-.clingo-swal-toast .clingo-swal-title {
-  margin: 0.1rem 0 0;
-  font-size: 0.98rem;
-  text-align: left;
+.otp-input {
+  width: 52px;
+  height: 60px;
+  border-radius: 14px;
+  border: 2px solid #e5e7eb;
+  background: #f8fafc;
+  color: #1a2e44;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.otp-input::placeholder {
+  color: #94a3b8;
+}
+
+.otp-input:focus {
+  border-color: #22d3ee;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.16);
 }
 
 .clingo-swal-toast .clingo-swal-message {

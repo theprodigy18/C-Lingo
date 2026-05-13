@@ -1,12 +1,65 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useAuthNavigation } from '../../hooks/useAuthNavigation';
 import { AuthLayout } from '../../components/auth';
+import { resendVerificationEmail } from '../../lib/api/auth';
+import { notification } from '../../lib/notifications';
 
 export const ResendVerificationPage = () => {
   const { goToSignIn, goToSignUp } = useAuthNavigation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement resend verification email logic
+
+    if (!email) {
+      notification.error('Email required', 'Please enter your email address.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    notification.loading({
+      title: 'Sending email',
+      message: 'Please wait...',
+    });
+
+    try {
+      const response = await resendVerificationEmail(email);
+      notification.close();
+
+      if (!response.success) {
+        notification.error(
+          'Failed to send email',
+          response.message ?? 'Unable to send verification email. Please try again.'
+        );
+        return;
+      }
+
+      await notification.modal({
+        title: 'Email Sent',
+        message: 'If an account with that email exists and is not yet verified, we have sent a verification email to that address.',
+        variant: 'success',
+        confirmText: 'Go to OTP',
+      });
+
+      navigate(`/otp?email=${encodeURIComponent(email)}`);
+    } catch (error) {
+      notification.close();
+      const serverMessage =
+        error && typeof error === 'object' && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+
+      notification.error(
+        'Failed to send email',
+        serverMessage ?? 'Unable to connect to the server. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -30,14 +83,18 @@ export const ResendVerificationPage = () => {
             <input
               className="input-field"
               placeholder="Email"
-              required
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
+              required
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-4 bg-[#1A2E44] text-white rounded-2xl font-semibold hover:bg-slate-800 transition-colors mt-4 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full py-4 bg-[#1A2E44] text-white rounded-2xl font-semibold hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-4 cursor-pointer"
           >
             Resend Verification Email
           </button>

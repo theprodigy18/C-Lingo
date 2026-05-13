@@ -2,50 +2,59 @@ import { useState, useEffect } from 'react';
 import {
   DashboardHeader,
   DashboardFooter,
+  DashboardHero,
   TabNav,
-  HeroSection,
   CourseSection,
   DailyStreakSection,
   CodingPracticeSection,
   LeaderboardSection,
 } from '../../components/dashboard';
+import { getAuthSessionStatus } from '../../lib/authSession';
+import { notification } from '../../lib/notifications';
+import { routes } from '../../lib/constants';
+import { useNavigate } from 'react-router';
 
 export const DashboardPage = () => {
-  const [activeTab, setActiveTab] = useState('courses');
+  const [user, setUser] = useState<{ username: string; display_name: string; avatar_url: string } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.4 }
-    );
-
-    ['courses', 'streak', 'practice', 'leaderboard'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
+    const { sessionuser } = getAuthSessionStatus();
+    if (!sessionuser) {
+      notification.error('Unauthorized', 'Please sign in to access the dashboard.');
+      navigate(routes.signIn, { replace: true });
+      return;
+    }
+    setUser({
+      username: sessionuser.username,
+      display_name: sessionuser.display_name || sessionuser.username,
+      avatar_url: sessionuser.avatar_url || '',
     });
+  }, [navigate]);
 
-    return () => observer.disconnect();
-  }, []);
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(180deg, #1e3a5f 0%, #0d1b2a 100%)' }}>
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background: 'linear-gradient(180deg, #1e3a5f 0%, #0d1b2a 100%)',
+      }}
+    >
       <DashboardHeader />
-      <HeroSection />
-      <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <DashboardHero user={user} />
+      <TabNav />
 
-      <main className="max-w-7xl mx-auto px-6 pb-20 flex-grow w-full">
-        <div className="space-y-20">
+      <main className="flex-grow">
+        <section id="courses">
           <CourseSection />
-          <DailyStreakSection />
-          <CodingPracticeSection />
-          <LeaderboardSection />
-        </div>
+        </section>
+
+        <DailyStreakSection />
+        <CodingPracticeSection />
+        <LeaderboardSection />
       </main>
 
       <DashboardFooter />

@@ -1,10 +1,15 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useNavigate } from 'react-router';
 import { useAuthNavigation } from '../../hooks/useAuthNavigation';
 import { AuthLayout, OAuthButtons } from '../../components/auth';
+import { register } from '../../lib/api/auth';
+import { notification } from '../../lib/notifications';
 import { signUpValidationSchema } from '../../lib/validation/auth';
+import type { SignUpFormData } from '../../types/auth';
 
 export const SignUpPage = () => {
   const { goToSignIn, goToResendVerification } = useAuthNavigation();
+  const navigate = useNavigate();
 
   return (
     <AuthLayout>
@@ -19,9 +24,46 @@ export const SignUpPage = () => {
         <Formik
           initialValues={{ username: '', email: '', password: '' }}
           validationSchema={signUpValidationSchema}
-          onSubmit={(_values, { setSubmitting }) => {
-            // TODO: Implement sign up logic
-            setSubmitting(false);
+          onSubmit={async (values: SignUpFormData, { setSubmitting }) => {
+            notification.loading({
+              title: 'Creating account',
+              message: 'Please wait...',
+            });
+
+            try {
+              const response = await register(values);
+              notification.close();
+
+              if (!response.success) {
+                notification.error(
+                  'Sign up failed',
+                  response.message ?? 'Unable to create account. Please try again.'
+                );
+                return;
+              }
+
+              await notification.modal({
+                title: 'Verify your email',
+                message: `We have sent a verification email to ${values.email}. Please check your inbox to verify your account.`,
+                variant: 'success',
+                confirmText: 'Go to OTP',
+              });
+
+              navigate(`/otp?email=${encodeURIComponent(values.email)}`);
+            } catch (error) {
+              notification.close();
+              const serverMessage =
+                error && typeof error === 'object' && 'response' in error
+                  ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+                  : undefined;
+
+              notification.error(
+                'Sign up failed',
+                serverMessage ?? 'Unable to connect to the server. Please try again.'
+              );
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           {({ isSubmitting }) => (

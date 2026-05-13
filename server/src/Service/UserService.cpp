@@ -8,6 +8,25 @@
 
 namespace CLingo
 {
+    namespace
+    {
+        std::string GetTodayString()
+        {
+            auto now{std::chrono::system_clock::now()};
+            auto time{std::chrono::system_clock::to_time_t(now)};
+            std::tm tm{};
+#ifdef _WIN64
+            gmtime_s(&tm, &time);
+#else
+            gmtime_r(&time, &tm);
+#endif // _WIN64
+
+            char buf[11];
+            std::strftime(buf, sizeof(buf), "%Y-%m-%d", &tm);
+            return std::string{buf};
+        }
+    } // anonymous namespace
+
     UserService::UserService(UserRepository& userRepository, EnergyLogRepository& energyLogRepository)
         : m_UserRepo{userRepository}, m_EnergyLogRepo{energyLogRepository} {}
 
@@ -16,6 +35,11 @@ namespace CLingo
         auto user{m_UserRepo.FindById(conn, userId)};
         if (!user)
             return std::nullopt;
+
+        const auto today{GetTodayString()};
+
+        if (user->lastLoginDate.empty() || user->lastLoginDate != today)
+            m_UserRepo.UpdateLastLoginDate(conn, userId);
 
         return Dto::UserToUserState(*user);
     }
