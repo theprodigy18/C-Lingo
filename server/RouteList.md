@@ -25,3 +25,7 @@
 |--------|-------------------|--------------------------|
 | GET    | `/users/me`       | Get current user profile |
 | GET    | `/users/me/state` | Get current user state   |
+| PUT    | `/users/me`       | Edit user information    |
+| POST    | `/users/me/energy/claims` | Claim daily energy for user  |
+| GET    | `/users/me/energy/logs`       | Get energy logs of user    |
+

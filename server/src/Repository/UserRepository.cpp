@@ -35,7 +35,7 @@ namespace CLingo
         return user;
     }
 
-    bool UsernameExists(PooledConnection& conn, i32 userId, const std::string& username)
+    bool UserRepository::UsernameExists(PooledConnection& conn, i32 userId, const std::string& username)
     {
         pqxx::read_transaction txn{conn.Get()};
 

@@ -6,9 +6,11 @@
 #include <Common/Common.hpp>
 
 #include <Model/User.hpp>
+#include <Model/EnergyLog.hpp>
 #include "User/SessionUser.hpp"
 #include "User/UserState.hpp"
 #include "User/PrivateUser.hpp"
+#include "EnergyLog/EnergyLogResponse.hpp"
 
 namespace CLingo::Dto
 {
@@ -54,5 +56,21 @@ namespace CLingo::Dto
             user.currentStreak,
             user.longestStreak,
         };
+    }
+
+    inline std::vector<EnergyLogResponse> EnergyLogsToEnergyLogResponses(const std::vector<Model::EnergyLog>& energyLogs)
+    {
+        std::vector<EnergyLogResponse> res;
+        res.reserve(energyLogs.size());
+
+        for (const auto& log : energyLogs)
+        {
+            res.emplace_back(EnergyLogResponse{
+                log.delta,
+                log.reason,
+                log.createdAt});
+        }
+
+        return res;
     }
 } // namespace CLingo::Dto

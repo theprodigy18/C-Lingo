@@ -19,6 +19,8 @@
 #include "User/PrivateUser.hpp"
 #include "User/EditProfileRequest.hpp"
 
+#include "EnergyLog/EnergyLogResponse.hpp"
+
 namespace CLingo::Dto
 {
 #pragma region Auth
@@ -157,4 +159,20 @@ namespace CLingo::Dto
             .displayName = j["display_name"].s(),
         };
     };
+
+    inline crow::json::wvalue EnergyLogResponsesToJson(const std::vector<Dto::EnergyLogResponse>& logs)
+    {
+        crow::json::wvalue j;
+        j["energy_logs"] = crow::json::wvalue::list();
+
+        for (uSize i{0}; i < logs.size(); ++i)
+        {
+            j["energy_logs"][i]["delta"] = logs[i].delta;
+            j["energy_logs"][i]["reason"] = logs[i].reason;
+            j["energy_logs"][i]["created_at"] = logs[i].createdAt;
+        }
+
+        return j;
+    }
+
 } // namespace CLingo::Dto

@@ -1,8 +1,6 @@
 // Copyright (c) 2026 Febri Andika, Galih Mahda, and Ivan Alfariziq
 // SPDX-License-Identifier: MIT
 
-#pragma once
-
 #include "EnergyLogRepository.hpp"
 
 #include <Model/DatabaseToModelMapper.hpp>
@@ -26,7 +24,7 @@ namespace CLingo
             throw InternalError("Failed to add energy log");
     }
 
-    std::vector<Model::EnergyLog> GetEnergyLogs(PooledConnection& conn, i32 userId)
+    std::vector<Model::EnergyLog> EnergyLogRepository::GetEnergyLogs(PooledConnection& conn, i32 userId)
     {
         pqxx::read_transaction txn{conn.Get()};
 

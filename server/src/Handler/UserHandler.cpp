@@ -39,6 +39,12 @@ namespace CLingo
                 [this](const crow::request& req) {
                     return HandleClaimEnergy(req);
                 });
+
+        app.route_dynamic(m_BasePath + "/me/energy/logs")
+            .methods(crow::HTTPMethod::Get)(
+                [this](const crow::request& req) {
+                    return HandleGetEnergyLogs(req);
+                });
     }
 
     crow::response UserHandler::HandleGetUserState(const crow::request& req)
@@ -92,6 +98,17 @@ namespace CLingo
         return WithConnection(m_Pool, [&](PooledConnection& conn) {
             m_UserService.ClaimEnergy(conn, auth.userId);
             return Ok();
+        });
+    }
+
+    crow::response UserHandler::HandleGetEnergyLogs(const crow::request& req)
+    {
+        const auto& auth{m_App.get_context<AuthMiddleware>(req)};
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            auto logs{m_UserService.GetEnergyLogs(conn, auth.userId)};
+            crow::json::wvalue j{Dto::EnergyLogResponsesToJson(logs)};
+            return Ok(std::move(j));
         });
     }
 

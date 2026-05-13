@@ -53,6 +53,11 @@ namespace CLingo
         m_EnergyLogRepo.AddEnergyLog(conn, userId, energyClaimed, "Claimed daily energy");
     }
 
+    std::vector<Dto::EnergyLogResponse> UserService::GetEnergyLogs(PooledConnection& conn, i32 userId)
+    {
+        return Dto::EnergyLogsToEnergyLogResponses(m_EnergyLogRepo.GetEnergyLogs(conn, userId));
+    }
+
     void UserService::EditProfile(PooledConnection& conn, i32 userId, const Dto::EditProfileRequest& dto)
     {
         if (!Input::IsValidUsername(dto.username))
