@@ -1,97 +1,34 @@
-import SectionHeader from "./SectionHeader";
-import type { TabId } from "./TabNav";
-
-interface StreakDay {
-  day: number;
-  claimed: boolean;
-  available: boolean;
-}
-
-interface DailyStreakSectionProps {
-  streaks: StreakDay[];
-  activeSection: TabId;
-  onSeeAll?: () => void;
-  onClaim: (day: number) => void;
-}
-
-function SmallLock() {
+export const DailyStreakSection = () => {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M8 10V8a4 4 0 0 1 8 0v2"
-        stroke="white"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <rect x="6" y="10" width="12" height="10" rx="3" fill="white" />
-      <circle cx="12" cy="15" r="1.5" fill="#d59c35" />
-    </svg>
-  );
-}
-
-function StreakDayCard({
-  streak,
-  onClaim,
-}: {
-  streak: StreakDay;
-  onClaim: (day: number) => void;
-}) {
-  const available = streak.available && !streak.claimed;
-
-  return (
-    <div className="flex min-w-[112px] flex-col items-center gap-4">
-      <div
-        className="flex h-[78px] w-[104px] items-center justify-center rounded-[28px] border-[6px] border-[#5f7fa4] bg-[#547293]"
-        style={{
-          boxShadow: available ? "0 0 26px rgba(35,215,255,0.85)" : "none",
-        }}
-      >
-        {streak.day === 1 ? (
-          <div className="relative flex h-12 w-12 items-center justify-center rounded-full border-4 border-[#23d7ff] text-3xl">
-            <span className="text-[#ffb13b]">⚡</span>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-1 text-white">
-            <SmallLock />
-            <span className="text-sm font-extrabold">Day {streak.day}</span>
-          </div>
-        )}
+    <section id="streak">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-clingo-blue">Daily Streak</h2>
+        <a className="text-sm text-gray-400 hover:text-white cursor-pointer font-poppins" href="#">See All</a>
       </div>
-      <button
-        onClick={() => available && onClaim(streak.day)}
-        disabled={!available}
-        className="rounded-full border border-white px-5 py-1 text-xs font-bold transition-colors"
-        style={{
-          background: available ? "#ffffff" : "transparent",
-          color: available ? "#244668" : "#23d7ff",
-          cursor: available ? "pointer" : "not-allowed",
-        }}
-      >
-        {streak.claimed ? "Claimed" : "Claim"}
-      </button>
-    </div>
-  );
-}
 
-export default function DailyStreakSection({
-  streaks,
-  activeSection,
-  onSeeAll,
-  onClaim,
-}: DailyStreakSectionProps) {
-  return (
-    <section id="daily-streak" className="scroll-mt-40">
-      <SectionHeader
-        title="Daily Streak"
-        sectionId="daily-streak"
-        activeSection={activeSection}
-        onSeeAll={onSeeAll}
-      />
-      <div className="flex gap-7 overflow-x-auto pb-2">
-        {streaks.map((streak) => (
-          <StreakDayCard key={streak.day} streak={streak} onClaim={onClaim} />
+      <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-7 gap-3">
+        {/* Day 1 - Active */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-full aspect-square rounded-xl bg-clingo-dark border-2 border-clingo-blue flex items-center justify-center" style={{ boxShadow: '0 0 15px rgba(34, 211, 238, 0.4)' }}>
+            <span className="text-lg font-bold text-clingo-blue font-museo">1</span>
+          </div>
+          <button className="w-full py-1.5 bg-clingo-blue text-clingo-dark font-bold rounded-full text-xs font-poppins cursor-pointer">
+            Claim
+          </button>
+        </div>
+
+        {/* Days 2-7 */}
+        {[2, 3, 4, 5, 6, 7].map((day) => (
+          <div key={day} className="flex flex-col items-center gap-2 opacity-50">
+            <div className="w-full aspect-square rounded-xl bg-slate-800/50 border border-white/10 flex items-center justify-center">
+              <span className="text-sm font-bold text-gray-400 font-poppins">{day}</span>
+            </div>
+            <button className="w-full py-1.5 border border-clingo-blue/30 text-clingo-blue font-bold rounded-full text-xs font-poppins cursor-pointer">
+              Claim
+            </button>
+          </div>
         ))}
       </div>
     </section>
   );
-}
+};

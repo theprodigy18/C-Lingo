@@ -1,30 +1,47 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import SignIn from "./pages/SignIn";
-import CreateAccount from "./pages/CreateAccount";
-import Dashboard from "./pages/Dashboard";
-import AuthCallback from "./pages/AuthCallback";
-import ResendVerificationEmail from "./pages/ResendVerificationEmail";
-import VerifyEmail from "./pages/VerifyEmail";
+import type { ReactNode } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { SignInPage, SignUpPage, ResendVerificationPage, OtpPage, ForgotPasswordPage, ResetPasswordPage } from './pages/auth';
+import { DashboardPage } from './pages/dashboard';
+import { usePreventAuthenticatedAccess } from './hooks/usePreventAuthenticatedAccess';
+import { useRequireAuthenticatedAccess } from './hooks/useRequireAuthenticatedAccess';
+import { routes } from './lib/constants';
+
+type RouteGuardProps = {
+  children: ReactNode;
+};
+
+const AuthRoute = ({ children }: RouteGuardProps) => {
+  const { isCheckingSession } = usePreventAuthenticatedAccess();
+
+  if (isCheckingSession) {
+    return null;
+  }
+
+  return children;
+};
+
+const ProtectedRoute = ({ children }: RouteGuardProps) => {
+  const { isCheckingSession } = useRequireAuthenticatedAccess();
+
+  if (isCheckingSession) {
+    return null;
+  }
+
+  return children;
+};
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public — auth pages */}
-        <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/create-account" element={<CreateAccount />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route
-          path="/resend-verification-email"
-          element={<ResendVerificationEmail />}
-        />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-
-        {/* Protected — ProtectedRoute is embedded inside Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/sign-in" replace />} />
+        <Route path={routes.root} element={<AuthRoute><SignInPage /></AuthRoute>} />
+        <Route path={routes.signIn} element={<AuthRoute><SignInPage /></AuthRoute>} />
+        <Route path={routes.signUp} element={<AuthRoute><SignUpPage /></AuthRoute>} />
+        <Route path={routes.resendVerification} element={<AuthRoute><ResendVerificationPage /></AuthRoute>} />
+        <Route path={routes.otp} element={<AuthRoute><OtpPage /></AuthRoute>} />
+        <Route path={routes.forgotPassword} element={<AuthRoute><ForgotPasswordPage /></AuthRoute>} />
+        <Route path={routes.resetPassword} element={<AuthRoute><ResetPasswordPage /></AuthRoute>} />
+        <Route path={routes.dashboard} element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,75 +1,43 @@
-import SectionHeader from "./SectionHeader";
-import type { TabId } from "./TabNav";
-
-interface LeaderboardEntry {
-  rank: number;
-  display_name: string;
-  avatar_url?: string;
-  aura: number;
-  isCurrentUser?: boolean;
-}
-
-interface LeaderboardSectionProps {
-  entries: LeaderboardEntry[];
-  activeSection: TabId;
-  onSeeAll?: () => void;
-}
-
-function formatAura(aura: number) {
-  return aura.toLocaleString("id-ID");
-}
-
-function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
-  const isFirst = entry.rank === 1;
+export const LeaderboardSection = () => {
+  const rankings = [
+    { rank: 1, name: 'Furab', aura: 10000 },
+    { rank: 2, name: 'Sugeng Kos', aura: 5000 },
+    { rank: 3, name: 'TheProdigy', aura: 4100 },
+    { rank: 4, name: 'Komdigy MBG', aura: 3000 },
+  ];
 
   return (
-    <div
-      className="grid grid-cols-[34px_48px_1fr_auto] items-center gap-5 rounded-2xl px-5 py-3 text-white sm:px-7"
-      style={{ background: isFirst ? "#68a6e0" : "transparent" }}
-    >
-      <span className="text-center text-2xl font-bold">{entry.rank}</span>
-      <div className="h-10 w-10 overflow-hidden rounded-full bg-[#00579b]">
-        {entry.avatar_url && (
-          <img
-            src={entry.avatar_url}
-            alt={entry.display_name}
-            className="h-full w-full object-cover"
-          />
-        )}
+    <section id="leaderboard">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-clingo-blue">Leaderboard</h2>
+        <a className="text-sm text-gray-400 hover:text-white cursor-pointer font-poppins" href="#">See All</a>
       </div>
-      <span className="truncate text-xl font-medium sm:text-2xl">
-        {entry.display_name}
-      </span>
-      <span className="text-right text-base sm:text-xl">
-        {formatAura(entry.aura)} Aura
-      </span>
-    </div>
-  );
-}
 
-export default function LeaderboardSection({
-  entries,
-  activeSection,
-  onSeeAll,
-}: LeaderboardSectionProps) {
-  return (
-    <section id="leaderboard" className="scroll-mt-40">
-      <SectionHeader
-        title="Leaderboard"
-        sectionId="leaderboard"
-        activeSection={activeSection}
-        onSeeAll={onSeeAll}
-      />
-      <div
-        className="rounded-[48px] bg-[#547293] p-8"
-        style={{ boxShadow: "0 0 46px rgba(35,215,255,0.85)" }}
-      >
-        <div className="space-y-1">
-          {entries.map((entry) => (
-            <LeaderboardRow key={entry.rank} entry={entry} />
+      <div className="bg-clingo-dark rounded-xl border border-clingo-blue/20 overflow-hidden" style={{ boxShadow: '0 0 30px rgba(34, 211, 238, 0.15)' }}>
+        <div className="divide-y divide-white/5">
+          {rankings.map((user) => (
+            <div
+              key={user.rank}
+              className={`flex items-center justify-between px-6 py-4 cursor-pointer transition-colors hover:bg-white/5 ${
+                user.rank === 1 ? 'bg-clingo-blue/10' : ''
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <span className={`w-8 text-center font-bold font-museo ${user.rank === 1 ? 'text-xl text-clingo-blue' : 'text-lg text-gray-500'}`}>
+                  {user.rank}
+                </span>
+                <div className="w-10 h-10 rounded-full bg-slate-700 border border-white/10" />
+                <span className={`font-medium font-poppins ${user.rank === 1 ? 'text-white' : 'text-gray-300'}`}>
+                  {user.name}
+                </span>
+              </div>
+              <span className={`font-bold font-poppins ${user.rank === 1 ? 'text-clingo-blue' : 'text-gray-400'}`}>
+                {user.aura.toLocaleString()} Aura
+              </span>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
-}
+};

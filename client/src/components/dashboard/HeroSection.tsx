@@ -1,44 +1,20 @@
-import type { User } from "../../types/auth";
-
-interface HeroSectionProps {
-  user: User;
-}
-
-export default function HeroSection({ user }: HeroSectionProps) {
+export const HeroSection = () => {
   return (
-    <section className="px-6 pb-24 pt-32 sm:px-10 sm:pb-32 sm:pt-40">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 sm:flex-row sm:gap-12">
-        <div className="flex shrink-0 flex-col items-center gap-4">
-          <div className="h-40 w-40 overflow-hidden rounded-full bg-[#00569a] shadow-[0_8px_18px_rgba(10,24,42,0.35)] sm:h-56 sm:w-56">
-            {user.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt={user.display_name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_35%_25%,#1cb4f5_0,#00579b_44%,#004477_100%)] text-7xl font-black text-white">
-                {user.display_name.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-          <button
-            disabled
-            className="rounded-full border border-white px-4 py-1 text-xs font-bold text-white opacity-95"
-          >
-            Edit Profil
-          </button>
-        </div>
-
-        <div className="text-center sm:text-left">
-          <h1 className="text-4xl font-extrabold leading-tight text-[#23d7ff] sm:text-5xl lg:text-6xl">
-            Welcome {user.display_name}
-          </h1>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/90">
-            increase your experience and skills and win all the existing awards
-          </p>
+    <header className="max-w-7xl mx-auto px-6 pt-12 pb-8 flex flex-col items-center text-center">
+      <div className="mb-6">
+        <div className="w-32 h-32 rounded-full bg-clingo-dark flex items-center justify-center border-4 border-clingo-blue/30" style={{ boxShadow: '0 0 50px 10px rgba(34, 211, 238, 0.3)' }}>
+          <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
         </div>
       </div>
-    </section>
+
+      <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+        Welcome <span className="text-clingo-blue">Ivan Alfariziq</span>
+      </h1>
+      <p className="text-gray-400 text-sm max-w-md font-poppins">
+        Increase your experience and skills and win all the existing awards.
+      </p>
+    </header>
   );
-}
+};
