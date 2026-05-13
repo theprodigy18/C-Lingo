@@ -12,6 +12,7 @@
 #include <Database/ConnectionPool.hpp>
 #include <Repository/AuthRepository.hpp>
 #include <Repository/UserRepository.hpp>
+#include <Repository/EnergyLogRepository.hpp>
 #include <Service/EmailService.hpp>
 #include <Service/OAuthService.hpp>
 #include <Service/AuthService.hpp>
@@ -81,6 +82,7 @@ namespace CLingo
         // Repositories
         std::unique_ptr<AuthRepository> m_AuthRepository;
         std::unique_ptr<UserRepository> m_UserRepository;
+        std::unique_ptr<EnergyLogRepository> m_EnergyLogRepository;
 
         // Services
         std::unique_ptr<EmailService> m_EmailService;

@@ -24,6 +24,8 @@ namespace CLingo
     private:
         crow::response HandleGetUserState(const crow::request& req);
         crow::response HandleGetPrivateUser(const crow::request& req);
+        crow::response HandleEditProfile(const crow::request& req);
+        crow::response HandleClaimEnergy(const crow::request& req);
 
     private:
         App& m_App;

@@ -17,6 +17,9 @@ namespace CLingo
         explicit UserRepository(UserCache& userCache);
 
         std::optional<Model::User> FindById(PooledConnection& conn, i32 userId);
+        bool UsernameExists(PooledConnection& conn, i32 userId, const std::string& username);
+        void ClaimEnergy(PooledConnection& conn, i32 userId, i32 energy);
+        void EditProfile(PooledConnection& conn, i32 userId, const std::string& username, const std::string& displayName);
 
     private:
         UserCache& m_UserCache;

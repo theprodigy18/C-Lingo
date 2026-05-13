@@ -17,6 +17,7 @@
 
 #include "User/UserState.hpp"
 #include "User/PrivateUser.hpp"
+#include "User/EditProfileRequest.hpp"
 
 namespace CLingo::Dto
 {
@@ -142,4 +143,18 @@ namespace CLingo::Dto
 
         return j;
     }
+
+    inline std::optional<EditProfileRequest> JsonToEditProfileRequest(const crow::json::rvalue& j)
+    {
+        if (!j.has("username") || !j.has("display_name"))
+        {
+            LOG_WARN("Missing required fields");
+            return std::nullopt;
+        }
+
+        return EditProfileRequest{
+            .username = j["username"].s(),
+            .displayName = j["display_name"].s(),
+        };
+    };
 } // namespace CLingo::Dto

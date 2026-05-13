@@ -7,9 +7,10 @@
 
 #include <pqxx/pqxx>
 
-#include <Model/User.hpp>
-#include <Model/AuthToken.hpp>
-#include <Model/OAuthAccount.hpp>
+#include "User.hpp"
+#include "AuthToken.hpp"
+#include "OAuthAccount.hpp"
+#include "EnergyLog.hpp"
 
 namespace CLingo::Model
 {
@@ -58,5 +59,23 @@ namespace CLingo::Model
             row["user_id"].as<i32>(),
             row["provider"].as<std::string>(),
             row["provider_id"].as<std::string>()};
+    }
+
+    inline std::vector<EnergyLog> MapEnergyLogs(const pqxx::result& result)
+    {
+        std::vector<EnergyLog> energyLogs;
+        energyLogs.reserve(result.size());
+
+        for (const auto& row : result)
+        {
+            energyLogs.emplace_back(Model::EnergyLog{
+                row["id"].as<i32>(),
+                row["user_id"].as<i32>(),
+                row["delta"].as<i32>(),
+                row["reason"].as<std::string>(),
+                row["created_at"].as<std::string>()});
+        }
+
+        return energyLogs;
     }
 } // namespace CLingo::Model

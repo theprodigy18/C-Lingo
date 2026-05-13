@@ -27,6 +27,18 @@ namespace CLingo
                 [this](const crow::request& req) {
                     return HandleGetPrivateUser(req);
                 });
+
+        app.route_dynamic(m_BasePath + "/me")
+            .methods(crow::HTTPMethod::Put)(
+                [this](const crow::request& req) {
+                    return HandleEditProfile(req);
+                });
+
+        app.route_dynamic(m_BasePath + "/me/energy/claim")
+            .methods(crow::HTTPMethod::Post)(
+                [this](const crow::request& req) {
+                    return HandleClaimEnergy(req);
+                });
     }
 
     crow::response UserHandler::HandleGetUserState(const crow::request& req)
@@ -54,4 +66,33 @@ namespace CLingo
             return Ok(Dto::PrivateUserToJson(*user));
         });
     }
+
+    crow::response UserHandler::HandleEditProfile(const crow::request& req)
+    {
+        const auto& auth{m_App.get_context<AuthMiddleware>(req)};
+
+        auto json{crow::json::load(req.body)};
+        if (!json)
+            return BadRequest("Invalid JSON");
+
+        auto dto{Dto::JsonToEditProfileRequest(json)};
+        if (!dto)
+            return BadRequest("Username and display name is required");
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            m_UserService.EditProfile(conn, auth.userId, *dto);
+            return Ok();
+        });
+    }
+
+    crow::response UserHandler::HandleClaimEnergy(const crow::request& req)
+    {
+        const auto& auth{m_App.get_context<AuthMiddleware>(req)};
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            m_UserService.ClaimEnergy(conn, auth.userId);
+            return Ok();
+        });
+    }
+
 } // namespace CLingo
