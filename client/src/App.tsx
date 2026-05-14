@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SignInPage, SignUpPage, ResendVerificationPage, OtpPage, ForgotPasswordPage, ResetPasswordPage, OAuthCallbackPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
 import { CourseDetailPage } from './pages/course';
+import { ProblemDetailPage } from './pages/problem';
 import { usePreventAuthenticatedAccess } from './hooks/usePreventAuthenticatedAccess';
 import { useRequireAuthenticatedAccess } from './hooks/useRequireAuthenticatedAccess';
 import { routes } from './lib/constants';
@@ -45,6 +46,7 @@ export default function App() {
         <Route path={routes.authCallback} element={<OAuthCallbackPage />} />
         <Route path={routes.dashboard} element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path={routes.course} element={<ProtectedRoute><CourseDetailPage /></ProtectedRoute>} />
+        <Route path={routes.problem} element={<ProtectedRoute><ProblemDetailPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

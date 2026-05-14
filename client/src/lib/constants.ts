@@ -16,4 +16,5 @@ export const routes = {
   authCallback: '/auth/callback',
   dashboard: '/dashboard',
   course: '/course/:id',
+  problem: '/problem/:id',
 } as const;

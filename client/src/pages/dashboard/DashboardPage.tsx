@@ -11,7 +11,7 @@ import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getAuthSessionStatus } from '../../lib/authSession';
 import { getUserState, claimDailyEnergy, getLeaderboard, type UserState } from '../../lib/api/user';
-import { getLevels } from '../../lib/api/level';
+import { getLevels, startLevel, type StartLevelResult } from '../../lib/api/level';
 import { notification } from '../../lib/notifications';
 import { routes } from '../../lib/constants';
 import { useNavigate } from 'react-router';
@@ -24,6 +24,7 @@ export const DashboardPage = () => {
   const [levels, setLevels] = useState<Level[]>([]);
   const [isClaiming, setIsClaiming] = useState(false);
   const [leaderboard, setLeaderboard] = useState<{ userRank: number; entries: LeaderboardEntry[] }>({ userRank: 0, entries: [] });
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,23 +47,18 @@ export const DashboardPage = () => {
         const state = await getUserState();
         if (state) {
           setUserState(state);
-        } else {
-          notification.error('Connection Error', 'Failed to load user state. Please refresh the page.');
         }
       } catch {
-        notification.error('Connection Error', 'Failed to load user state. Please refresh the page.');
+        // Silent fail, will show empty state
       }
     };
 
     const fetchLevels = async () => {
       try {
         const data = await getLevels();
-        if (data.length === 0) {
-          notification.error('Connection Error', 'Failed to load courses. Please refresh the page.');
-        }
         setLevels(data);
       } catch {
-        notification.error('Connection Error', 'Failed to load courses. Please refresh the page.');
+        // Silent fail, will show empty state
       }
     };
 
@@ -71,17 +67,23 @@ export const DashboardPage = () => {
         const data = await getLeaderboard();
         if (data) {
           setLeaderboard(data);
-        } else {
-          notification.error('Connection Error', 'Failed to load leaderboard. Please refresh the page.');
         }
       } catch {
-        notification.error('Connection Error', 'Failed to load leaderboard. Please refresh the page.');
+        // Silent fail, will show empty state
       }
     };
 
-    fetchUserState();
-    fetchLevels();
-    fetchLeaderboard();
+    const fetchAll = async () => {
+      notification.loading({
+        title: 'Loading',
+        message: 'Fetching data...',
+      });
+      await Promise.all([fetchUserState(), fetchLevels(), fetchLeaderboard()]);
+      notification.close();
+      setIsLoading(false);
+    };
+
+    fetchAll();
 
     // Refresh state periodically when user cannot claim (countdown active)
     const interval = setInterval(async () => {
@@ -113,14 +115,69 @@ export const DashboardPage = () => {
       } else {
         notification.error('Failed', 'Could not claim energy. Please try again.');
       }
-    } catch (error) {
+    } catch {
       notification.error('Error', 'An unexpected error occurred.');
     } finally {
       setIsClaiming(false);
     }
   };
 
+  const handleCourseClick = async (level: Level) => {
+    // If completed or already started, go directly to course detail
+    if (level.is_completed || level.is_started) {
+      navigate(routes.course.replace(':id', String(level.id)));
+      return;
+    }
+
+    const result = await notification.confirm({
+      title: `Start Level ${level.level_number}`,
+      message: `${level.title}\n\nEnergy cost: ${level.energy_cost}`,
+      confirmText: 'Start',
+      cancelText: 'Cancel',
+    });
+
+    if (!result.isConfirmed) return;
+
+    notification.loading({
+      title: 'Starting Level',
+      message: 'Please wait...',
+    });
+
+    try {
+      const response: StartLevelResult | null = await startLevel(level.id);
+      notification.close();
+
+      if (!response) {
+        notification.error('Error', 'Failed to start level. Please try again.');
+        return;
+      }
+
+      if (!response.success) {
+        notification.error('Cannot Start', response.message);
+        return;
+      }
+
+      notification.success('Level Started', response.message);
+      const state = await getUserState();
+      if (state) {
+        setUserState(state);
+      }
+      navigate(routes.course.replace(':id', String(level.id)));
+    } catch {
+      notification.close();
+      notification.error('Error', 'An unexpected error occurred.');
+    }
+  };
+
   if (!user) {
+    return null;
+  }
+
+  if (isLoading) {
+    notification.loading({
+      title: 'Loading',
+      message: 'Fetching data...',
+    });
     return null;
   }
 
@@ -137,7 +194,7 @@ export const DashboardPage = () => {
 
       <main className="flex-grow">
         <section id="courses">
-          <CourseSection levels={levels} />
+          <CourseSection levels={levels} onCourseClick={handleCourseClick} />
         </section>
 
         <DailyStreakSection userState={userState} onClaimDailyEnergy={handleClaimDailyEnergy} isClaiming={isClaiming} />

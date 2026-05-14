@@ -1,10 +1,9 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Level } from '../../types/level';
-import { routes } from '../../lib/constants';
 
 type CourseSectionProps = {
   levels: Level[];
+  onCourseClick: (level: Level) => void;
 };
 
 const getCourseColor = (isUnlocked: boolean, isCompleted: boolean) => {
@@ -13,12 +12,11 @@ const getCourseColor = (isUnlocked: boolean, isCompleted: boolean) => {
   return 'from-gray-800 to-gray-900';
 };
 
-export const CourseSection = ({ levels }: CourseSectionProps) => {
+export const CourseSection = ({ levels, onCourseClick }: CourseSectionProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const navigate = useNavigate();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -30,8 +28,8 @@ export const CourseSection = ({ levels }: CourseSectionProps) => {
     }
   };
 
-  const handleCourseClick = (levelId: number) => {
-    navigate(routes.course.replace(':id', String(levelId)));
+  const handleCourseClick = (level: Level) => {
+    onCourseClick(level);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -98,6 +96,7 @@ export const CourseSection = ({ levels }: CourseSectionProps) => {
             <div
               key={level.id}
               className={`flex-shrink-0 w-64 group ${level.is_unlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+              onClick={() => level.is_unlocked && handleCourseClick(level)}
             >
               <div
                 className={`h-40 rounded-2xl bg-gradient-to-br ${getCourseColor(level.is_unlocked, level.is_completed)} relative overflow-hidden flex items-center justify-center transition-transform duration-300 ${level.is_unlocked ? 'group-hover:scale-105' : ''}`}

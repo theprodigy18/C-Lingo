@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+import { routes } from '../../lib/constants';
+
 export const CodingPracticeSection = () => {
+  const navigate = useNavigate();
   const problems = [
     { id: 1, title: 'Hello World', difficulty: 'Easy', acceptance: '85.2%', tags: ['String', 'Basics'] },
     { id: 2, title: 'Sum of Two', difficulty: 'Easy', acceptance: '78.5%', tags: ['Math', 'Logic'] },
@@ -19,6 +23,10 @@ export const CodingPracticeSection = () => {
     }
   };
 
+  const handleProblemClick = (problemId: number) => {
+    navigate(routes.problem.replace(':id', String(problemId)));
+  };
+
   return (
     <section id="practice" className="py-8">
       <div className="max-w-7xl mx-auto px-6">
@@ -31,6 +39,7 @@ export const CodingPracticeSection = () => {
           {problems.map((problem) => (
             <div
               key={problem.id}
+              onClick={() => handleProblemClick(problem.id)}
               className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors cursor-pointer group"
             >
               <div className="flex items-start justify-between mb-4">
