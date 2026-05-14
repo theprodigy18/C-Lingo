@@ -7,8 +7,8 @@
 
 namespace CLingo
 {
-    UserRepository::UserRepository(UserCache& userCache)
-        : m_UserCache(userCache) {}
+    UserRepository::UserRepository(UserCache& userCache, Cache<i32, std::vector<Model::User>>& leaderboardCache)
+        : m_UserCache{userCache}, m_LeaderboardCache{leaderboardCache} {}
 
     std::optional<Model::User> UserRepository::FindById(PooledConnection& conn, i32 userId)
     {
@@ -48,17 +48,20 @@ namespace CLingo
         return !result.empty();
     }
 
-    void UserRepository::ClaimEnergy(PooledConnection& conn, i32 userId, i32 energy)
+    void UserRepository::ClaimEnergy(PooledConnection& conn, i32 userId, i32 energy, i32 currentStreak, i32 longestStreak)
     {
         pqxx::work txn{conn.Get()};
 
         auto result{txn.exec_params(R"(
                                 UPDATE users
-                                SET energy = $2, last_energy_refill = NOW()
+                                SET energy = $2,
+                                    last_energy_refill = NOW(),
+                                    current_streak = $3,
+                                    longest_streak = $4
                                 WHERE id = $1
                                 RETURNING id
                                 )",
-                                    pqxx::params{userId, energy})};
+                                    pqxx::params{userId, energy, currentStreak, longestStreak})};
 
         txn.commit();
 
@@ -106,6 +109,81 @@ namespace CLingo
             throw InternalError("Failed to update last login date");
 
         m_UserCache.Invalidate(userId);
+    }
+
+    void UserRepository::ResetStreak(PooledConnection& conn, i32 userId)
+    {
+        pqxx::work txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                                UPDATE users
+                                SET current_streak = 0
+                                WHERE id = $1
+                                RETURNING id
+                                )",
+                                    pqxx::params{userId})};
+
+        txn.commit();
+
+        if (result.empty())
+            throw InternalError("Failed to reset streak");
+
+        m_UserCache.Invalidate(userId);
+    }
+
+    std::vector<Model::User> UserRepository::FindTopByAura(PooledConnection& conn, i32 limit)
+    {
+        auto cached{m_LeaderboardCache.Get(limit)};
+        if (cached)
+            return *cached;
+
+        pqxx::read_transaction txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                            SELECT id, username, display_name, email, password_hash, is_verified, avatar_url,
+                            aura, energy, last_energy_refill, current_streak, longest_streak, last_login_date, created_at
+                            FROM users
+                            WHERE aura > 0
+                            ORDER BY aura DESC
+                            LIMIT $1
+                            )",
+                                    pqxx::params{limit})};
+
+        std::vector<Model::User> users;
+        users.reserve(result.size());
+
+        for (const auto& row : result)
+        {
+            users.push_back(Model::MapUser(row));
+        }
+
+        m_LeaderboardCache.Set(limit, users);
+
+        return users;
+    }
+
+    std::optional<i32> UserRepository::FindUserRank(PooledConnection& conn, i32 userId)
+    {
+        pqxx::read_transaction txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                            SELECT aura FROM users WHERE id = $1
+                            )",
+                                    pqxx::params{userId})};
+
+        if (result.empty())
+            return std::nullopt;
+
+        auto userAura{result[0]["aura"].as<i32>()};
+
+        auto rankResult{txn.exec_params(R"(
+                            SELECT COUNT(*) as rank FROM users WHERE aura > $1
+                            )",
+                                    pqxx::params{userAura})};
+
+        auto rank{rankResult[0]["rank"].as<i32>() + 1};
+
+        return rank;
     }
 
 } // namespace CLingo

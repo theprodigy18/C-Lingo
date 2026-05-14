@@ -22,6 +22,10 @@ type RegisterApiResponse = {
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
 const authBaseUrl = apiBaseUrl.replace(/\/$/, '');
 
+export const oauthLogin = (provider: 'google' | 'github') => {
+  window.location.href = `${authBaseUrl}/auth/${provider}`;
+};
+
 export const login = async (values: SignInFormData): Promise<AuthResponse> => {
   const { data } = await axios.post<LoginApiResponse>(
     `${authBaseUrl}/auth/login`,
@@ -120,4 +124,25 @@ export const resetPassword = async (token: string, newPassword: string): Promise
     success: data.success,
     message: data.message,
   };
+};
+
+type SessionUserApiResponse = {
+  success: boolean;
+  message?: string;
+  data?: {
+    user?: SessionUser;
+  };
+};
+
+export const getSessionUser = async (token: string): Promise<SessionUser | null> => {
+  const { data } = await axios.post<SessionUserApiResponse>(
+    `${authBaseUrl}/auth/session-user`,
+    { token }
+  );
+
+  if (!data.data?.user) {
+    return null;
+  }
+
+  return data.data.user;
 };

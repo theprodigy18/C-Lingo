@@ -41,6 +41,23 @@ namespace CLingo
         if (user->lastLoginDate.empty() || user->lastLoginDate != today)
             m_UserRepo.UpdateLastLoginDate(conn, userId);
 
+        // Check if streak should be broken
+        // Streak breaks if: currentStreak > 0 AND more than 48 hours passed since last claim
+        // (24h grace period to claim + 24h missed)
+        if (user->currentStreak > 0)
+        {
+            const auto now{std::chrono::system_clock::now()};
+            const auto missedWindow{user->lastEnergyRefill + std::chrono::hours(48)};
+            if (now >= missedWindow)
+            {
+                m_UserRepo.ResetStreak(conn, userId);
+                // Refetch user after reset
+                user = m_UserRepo.FindById(conn, userId);
+                if (!user)
+                    return std::nullopt;
+            }
+        }
+
         return Dto::UserToUserState(*user);
     }
 
@@ -70,8 +87,18 @@ namespace CLingo
         const auto energyClaimed{20 + (user->currentStreak * 5)};
         const auto newEnergy{std::min(user->energy + energyClaimed, 100)};
 
-        // Update user's energy
-        m_UserRepo.ClaimEnergy(conn, userId, newEnergy);
+        // Calculate streak
+        // If this is the first claim (streak is 0), start at 1
+        // Otherwise, increment the current streak
+        auto newStreak{user->currentStreak + 1};
+
+        // Update longest streak if needed
+        auto newLongestStreak{user->longestStreak};
+        if (newStreak > newLongestStreak)
+            newLongestStreak = newStreak;
+
+        // Update user's energy and streak
+        m_UserRepo.ClaimEnergy(conn, userId, newEnergy, newStreak, newLongestStreak);
 
         // Add energy log
         m_EnergyLogRepo.AddEnergyLog(conn, userId, energyClaimed, "Claimed daily energy");
@@ -94,5 +121,13 @@ namespace CLingo
             throw ConflictError("Username already taken");
 
         m_UserRepo.EditProfile(conn, userId, dto.username, dto.displayName);
+    }
+
+    Dto::LeaderboardResponse UserService::GetLeaderboard(PooledConnection& conn, i32 userId)
+    {
+        auto topUsers{m_UserRepo.FindTopByAura(conn, 10)};
+        auto userRankOpt{m_UserRepo.FindUserRank(conn, userId)};
+
+        return Dto::UsersToLeaderboardResponse(userRankOpt.value_or(0), topUsers);
     }
 } // namespace CLingo

@@ -56,6 +56,11 @@ namespace CLingo
             const std::string& provider,
             const std::string& code);
 
+        // Session
+        Dto::SessionUser GetSessionUser(
+            PooledConnection& conn,
+            const std::string& token);
+
     private:
         // Generate 6-digit OTP for email verification
         static std::string GenerateOTP();

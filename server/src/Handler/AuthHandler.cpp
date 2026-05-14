@@ -69,6 +69,13 @@ namespace CLingo
                 [this](const crow::request& req, std::string provider) {
                     return HandleOAuthCallback(req, provider);
                 });
+
+        // Session user - get user data from token
+        app.route_dynamic(m_BasePath + "/session-user")
+            .methods(crow::HTTPMethod::Post)(
+                [this](const crow::request& req) {
+                    return HandleGetSessionUser(req);
+                });
     }
 
     // ─── Handlers ─────────────────────────────────────────────────────────────
@@ -290,6 +297,23 @@ namespace CLingo
             crow::response res{302};
             res.add_header("Location", appUrl);
             return res;
+        });
+    }
+
+    crow::response AuthHandler::HandleGetSessionUser(const crow::request& req)
+    {
+        auto body{ParseJson(req)};
+        if (!body)
+            return BadRequest("Invalid JSON");
+
+        if (!body->has("token"))
+            return BadRequest("Token is required");
+
+        std::string token{(*body)["token"].s()};
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            auto sessionUser{m_AuthService.GetSessionUser(conn, token)};
+            return Ok(Dto::SessionUserToJson(sessionUser));
         });
     }
 

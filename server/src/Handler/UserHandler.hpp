@@ -27,6 +27,7 @@ namespace CLingo
         crow::response HandleEditProfile(const crow::request& req);
         crow::response HandleClaimEnergy(const crow::request& req);
         crow::response HandleGetEnergyLogs(const crow::request& req);
+        crow::response HandleGetLeaderboard(const crow::request& req);
 
     private:
         App& m_App;

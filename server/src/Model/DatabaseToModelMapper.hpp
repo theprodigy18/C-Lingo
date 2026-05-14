@@ -11,17 +11,37 @@
 #include "AuthToken.hpp"
 #include "OAuthAccount.hpp"
 #include "EnergyLog.hpp"
+#include "Level.hpp"
 
 namespace CLingo::Model
 {
+    namespace
+    {
+        // Convert tm to time_t treating tm as UTC (not local time)
+        // Windows uses _mkgmtime, POSIX uses timegm
+        inline std::time_t UtcToTimeT(std::tm& tm)
+        {
+#ifdef _WIN64
+            return _mkgmtime(&tm);
+#else
+            return ::timegm(&tm);
+#endif
+        }
+    } // anonymous namespace
+
     inline User MapUser(const pqxx::row& row)
     {
         std::string timestampStr{row["last_energy_refill"].as<std::string>()};
 
         std::tm tm{};
-        std::istringstream ss(timestampStr);
+        std::istringstream ss{timestampStr};
         ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
-        auto timePoint{std::chrono::system_clock::from_time_t(std::mktime(&tm))};
+
+        // PostgreSQL TIMESTAMPTZ is stored as UTC.
+        // std::mktime interprets tm as local time, causing offset on non-UTC systems.
+        // Use UtcToTimeT to correctly parse UTC timestamps.
+        tm.tm_isdst = 0;
+        auto timePoint{std::chrono::system_clock::from_time_t(UtcToTimeT(tm))};
 
         return User{
             row["id"].as<i32>(),
@@ -61,6 +81,41 @@ namespace CLingo::Model
             row["provider_id"].as<std::string>()};
     }
 
+    inline Level MapLevel(const pqxx::row& row)
+    {
+        return Level{
+            row["id"].as<i32>(),
+            row["level_number"].as<i32>(),
+            row["title"].as<std::string>(),
+            row["content_md"].as<std::string>(),
+            row["energy_cost"].as<i32>(),
+            row["quiz_aura_reward"].as<i32>(),
+            row["is_published"].as<bool>()};
+    }
+
+    inline std::vector<Level> MapLevels(const pqxx::result& result)
+    {
+        std::vector<Level> levels;
+        levels.reserve(result.size());
+
+        for (const auto& row : result)
+        {
+            levels.emplace_back(MapLevel(row));
+        }
+
+        return levels;
+    }
+
+    inline EnergyLog MapEnergyLog(const pqxx::row& row)
+    {
+        return EnergyLog{
+            row["id"].as<i32>(),
+            row["user_id"].as<i32>(),
+            row["delta"].as<i32>(),
+            row["reason"].as<std::string>(),
+            row["created_at"].as<std::string>()};
+    }
+
     inline std::vector<EnergyLog> MapEnergyLogs(const pqxx::result& result)
     {
         std::vector<EnergyLog> energyLogs;
@@ -68,12 +123,7 @@ namespace CLingo::Model
 
         for (const auto& row : result)
         {
-            energyLogs.emplace_back(Model::EnergyLog{
-                row["id"].as<i32>(),
-                row["user_id"].as<i32>(),
-                row["delta"].as<i32>(),
-                row["reason"].as<std::string>(),
-                row["created_at"].as<std::string>()});
+            energyLogs.emplace_back(MapEnergyLog(row));
         }
 
         return energyLogs;

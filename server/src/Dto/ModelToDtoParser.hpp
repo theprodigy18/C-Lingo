@@ -10,6 +10,7 @@
 #include "User/SessionUser.hpp"
 #include "User/UserState.hpp"
 #include "User/PrivateUser.hpp"
+#include "User/LeaderboardResponse.hpp"
 #include "EnergyLog/EnergyLogResponse.hpp"
 
 namespace CLingo::Dto
@@ -72,5 +73,29 @@ namespace CLingo::Dto
         }
 
         return res;
+    }
+
+    inline LeaderboardEntry UserToLeaderboardEntry(i32 rank, const Model::User& user)
+    {
+        return LeaderboardEntry{
+            rank,
+            user.username,
+            user.displayName,
+            user.aura,
+            user.avatarUrl,
+        };
+    }
+
+    inline LeaderboardResponse UsersToLeaderboardResponse(i32 userRank, const std::vector<Model::User>& users)
+    {
+        std::vector<LeaderboardEntry> entries;
+        entries.reserve(users.size());
+
+        for (uSize i{0}; i < users.size(); ++i)
+        {
+            entries.push_back(UserToLeaderboardEntry(static_cast<i32>(i + 1), users[i]));
+        }
+
+        return LeaderboardResponse{userRank, std::move(entries)};
     }
 } // namespace CLingo::Dto

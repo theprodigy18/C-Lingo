@@ -31,6 +31,7 @@ namespace CLingo
         crow::response HandleResendVerificationEmail(const crow::request& req);
         crow::response HandleOAuthRedirect(const crow::request& req, const std::string& provider);
         crow::response HandleOAuthCallback(const crow::request& req, const std::string& provider);
+        crow::response HandleGetSessionUser(const crow::request& req);
 
     private:
         AuthService& m_AuthService;

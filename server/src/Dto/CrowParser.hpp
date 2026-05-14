@@ -18,8 +18,11 @@
 #include "User/UserState.hpp"
 #include "User/PrivateUser.hpp"
 #include "User/EditProfileRequest.hpp"
+#include "User/LeaderboardResponse.hpp"
 
 #include "EnergyLog/EnergyLogResponse.hpp"
+
+#include "Level/LevelListResponse.hpp"
 
 namespace CLingo::Dto
 {
@@ -170,6 +173,54 @@ namespace CLingo::Dto
             j["energy_logs"][i]["delta"] = logs[i].delta;
             j["energy_logs"][i]["reason"] = logs[i].reason;
             j["energy_logs"][i]["created_at"] = logs[i].createdAt;
+        }
+
+        return j;
+    }
+
+    inline crow::json::wvalue LevelListResponseToJson(const LevelListResponse& res)
+    {
+        crow::json::wvalue j;
+        j["levels"] = crow::json::wvalue::list();
+
+        for (uSize i{0}; i < res.levels.size(); ++i)
+        {
+            j["levels"][i]["id"] = res.levels[i].id;
+            j["levels"][i]["level_number"] = res.levels[i].levelNumber;
+            j["levels"][i]["title"] = res.levels[i].title;
+            j["levels"][i]["energy_cost"] = res.levels[i].energyCost;
+            j["levels"][i]["quiz_aura_reward"] = res.levels[i].quizAuraReward;
+            j["levels"][i]["is_unlocked"] = res.levels[i].isUnlocked;
+            j["levels"][i]["is_completed"] = res.levels[i].isCompleted;
+        }
+
+        return j;
+    }
+
+    inline crow::json::wvalue SessionUserToJson(const SessionUser& user)
+    {
+        crow::json::wvalue j;
+        j["user"]["id"] = user.id;
+        j["user"]["username"] = user.username;
+        j["user"]["display_name"] = user.displayName;
+        j["user"]["avatar_url"] = user.avatarUrl;
+
+        return j;
+    }
+
+    inline crow::json::wvalue LeaderboardResponseToJson(const LeaderboardResponse& res)
+    {
+        crow::json::wvalue j;
+        j["user_rank"] = res.userRank;
+        j["entries"] = crow::json::wvalue::list();
+
+        for (uSize i{0}; i < res.entries.size(); ++i)
+        {
+            j["entries"][i]["rank"] = res.entries[i].rank;
+            j["entries"][i]["username"] = res.entries[i].username;
+            j["entries"][i]["display_name"] = res.entries[i].displayName;
+            j["entries"][i]["aura"] = res.entries[i].aura;
+            j["entries"][i]["avatar_url"] = res.entries[i].avatarUrl;
         }
 
         return j;

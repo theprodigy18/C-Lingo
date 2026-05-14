@@ -45,6 +45,12 @@ namespace CLingo
                 [this](const crow::request& req) {
                     return HandleGetEnergyLogs(req);
                 });
+
+        app.route_dynamic(m_BasePath + "/me/leaderboard")
+            .methods(crow::HTTPMethod::Get)(
+                [this](const crow::request& req) {
+                    return HandleGetLeaderboard(req);
+                });
     }
 
     crow::response UserHandler::HandleGetUserState(const crow::request& req)
@@ -109,6 +115,16 @@ namespace CLingo
             auto logs{m_UserService.GetEnergyLogs(conn, auth.userId)};
             crow::json::wvalue j{Dto::EnergyLogResponsesToJson(logs)};
             return Ok(std::move(j));
+        });
+    }
+
+    crow::response UserHandler::HandleGetLeaderboard(const crow::request& req)
+    {
+        const auto& auth{m_App.get_context<AuthMiddleware>(req)};
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            auto response{m_UserService.GetLeaderboard(conn, auth.userId)};
+            return Ok(Dto::LeaderboardResponseToJson(response));
         });
     }
 

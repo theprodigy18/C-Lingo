@@ -13,5 +13,7 @@ export const routes = {
   otp: '/otp',
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
+  authCallback: '/auth/callback',
   dashboard: '/dashboard',
+  course: '/course/:id',
 } as const;

@@ -1,20 +1,24 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { Level } from '../../types/level';
+import { routes } from '../../lib/constants';
 
-const courses = [
-  { level: 1, title: 'Introduction to C', color: 'from-slate-700 to-slate-900' },
-  { level: 2, title: 'Variables & Data Types', color: 'from-slate-700 to-slate-900' },
-  { level: 3, title: 'Control Flow', color: 'from-slate-700 to-slate-900' },
-  { level: 4, title: 'Functions', color: 'from-slate-700 to-slate-900' },
-  { level: 5, title: 'Arrays & Pointers', color: 'from-slate-700 to-slate-900' },
-  { level: 6, title: 'Structures', color: 'from-slate-700 to-slate-900' },
-  { level: 7, title: 'File Handling', color: 'from-slate-700 to-slate-900' },
-];
+type CourseSectionProps = {
+  levels: Level[];
+};
 
-export const CourseSection = () => {
+const getCourseColor = (isUnlocked: boolean, isCompleted: boolean) => {
+  if (isCompleted) return 'from-emerald-700 to-emerald-900';
+  if (isUnlocked) return 'from-slate-700 to-slate-900';
+  return 'from-gray-800 to-gray-900';
+};
+
+export const CourseSection = ({ levels }: CourseSectionProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const navigate = useNavigate();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -24,6 +28,10 @@ export const CourseSection = () => {
         behavior: 'smooth',
       });
     }
+  };
+
+  const handleCourseClick = (levelId: number) => {
+    navigate(routes.course.replace(':id', String(levelId)));
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -86,25 +94,39 @@ export const CourseSection = () => {
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
-          {courses.map((course) => (
+          {levels.map((level) => (
             <div
-              key={course.level}
-              className="flex-shrink-0 w-64 group cursor-pointer"
+              key={level.id}
+              className={`flex-shrink-0 w-64 group ${level.is_unlocked ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
             >
               <div
-                className={`h-40 rounded-2xl bg-gradient-to-br ${course.color} relative overflow-hidden flex items-center justify-center transition-transform duration-300 group-hover:scale-105`}
+                className={`h-40 rounded-2xl bg-gradient-to-br ${getCourseColor(level.is_unlocked, level.is_completed)} relative overflow-hidden flex items-center justify-center transition-transform duration-300 ${level.is_unlocked ? 'group-hover:scale-105' : ''}`}
               >
                 <div className="absolute inset-0 flex items-center justify-center">
                   <svg className="w-20 h-20 text-white/20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                    <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
                   </svg>
                 </div>
                 <div className="absolute bottom-3 right-3 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
-                  <span className="text-white text-xs font-bold">Level {course.level}</span>
+                  <span className="text-white text-xs font-bold">Level {level.level_number}</span>
                 </div>
+                {level.is_completed && (
+                  <div className="absolute top-3 right-3 bg-emerald-500 rounded-full p-1">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+                {!level.is_unlocked && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                )}
               </div>
               <div className="mt-3 text-center">
-                <h3 className="text-white font-semibold text-sm">{course.title}</h3>
+                <h3 className="text-white font-semibold text-sm">{level.title}</h3>
               </div>
             </div>
           ))}

@@ -1,4 +1,4 @@
-export const DashboardFooter = () => {
+export const Footer = () => {
   return (
     <footer className="bg-clingo-dark border-t border-white/10 pt-12 pb-8 px-6">
       <div className="max-w-7xl mx-auto">

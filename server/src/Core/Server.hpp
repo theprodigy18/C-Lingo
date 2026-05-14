@@ -9,14 +9,17 @@
 #include <Core/CleanupManager.hpp>
 #include <Core/UserCache.hpp>
 #include <Core/CounterCache.hpp>
+#include <Core/LevelCache.hpp>
 #include <Database/ConnectionPool.hpp>
 #include <Repository/AuthRepository.hpp>
 #include <Repository/UserRepository.hpp>
 #include <Repository/EnergyLogRepository.hpp>
+#include <Repository/LevelRepository.hpp>
 #include <Service/EmailService.hpp>
 #include <Service/OAuthService.hpp>
 #include <Service/AuthService.hpp>
 #include <Service/UserService.hpp>
+#include <Service/LevelService.hpp>
 #include <Handler/IHandler.hpp>
 
 namespace CLingo
@@ -75,6 +78,8 @@ namespace CLingo
         // Caches
         std::unique_ptr<UserCache> m_UserCache;
         std::unique_ptr<CounterCache> m_CounterCache;
+        std::unique_ptr<LevelCache> m_LevelCache;
+        std::unique_ptr<Cache<i32, std::vector<Model::User>>> m_LeaderboardCache;
 
         // Databases
         std::unique_ptr<ConnectionPool> m_Pool;
@@ -83,12 +88,14 @@ namespace CLingo
         std::unique_ptr<AuthRepository> m_AuthRepository;
         std::unique_ptr<UserRepository> m_UserRepository;
         std::unique_ptr<EnergyLogRepository> m_EnergyLogRepository;
+        std::unique_ptr<LevelRepository> m_LevelRepository;
 
         // Services
         std::unique_ptr<EmailService> m_EmailService;
         std::unique_ptr<OAuthService> m_OAuthService;
         std::unique_ptr<AuthService> m_AuthService;
         std::unique_ptr<UserService> m_UserService;
+        std::unique_ptr<LevelService> m_LevelService;
 
         // Handlers
         std::vector<std::unique_ptr<IHandler>> m_Handlers;

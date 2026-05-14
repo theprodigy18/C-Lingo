@@ -300,6 +300,21 @@ namespace CLingo
         return Dto::AuthResponse{token, std::move(sessionUser)};
     }
 
+    Dto::SessionUser AuthService::GetSessionUser(
+        PooledConnection& conn,
+        const std::string& token)
+    {
+        auto userIdOpt{Jwt::Verify(token, m_JwtSecret, m_JwtIssuer)};
+        if (!userIdOpt)
+            throw UnauthorizedError("Invalid or expired token");
+
+        auto user{m_AuthRepo.FindById(conn, *userIdOpt)};
+        if (!user)
+            throw NotFoundError("User not found");
+
+        return Dto::UserToSessionUser(*user);
+    }
+
     std::string AuthService::GenerateOTP()
     {
         u32 random;

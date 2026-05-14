@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clearAuthSession } from '../../lib/authSession';
-import { notification } from '../../lib/notifications';
+import { clearAuthSession } from '../lib/authSession';
+import { notification } from '../lib/notifications';
+import { routes } from '../lib/constants';
+import type { UserState } from '../lib/api/user';
 
-export const DashboardHeader = () => {
+type HeaderProps = {
+  userState: UserState | null;
+};
+
+export const Header = ({ userState }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
@@ -30,7 +36,11 @@ export const DashboardHeader = () => {
     }
 
     clearAuthSession();
-    navigate('/signin', { replace: true });
+    navigate(routes.signIn, { replace: true });
+  };
+
+  const handleLogoClick = () => {
+    navigate(routes.dashboard);
   };
 
   return (
@@ -38,7 +48,7 @@ export const DashboardHeader = () => {
       className={`sticky top-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${isScrolled ? 'backdrop-blur-md bg-[#0d1b2a]/80' : ''
         }`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer" onClick={handleLogoClick}>
         <svg className="w-8 h-8" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="cGradientDash" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -63,12 +73,12 @@ export const DashboardHeader = () => {
 
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
-          <span className="text-white font-bold text-sm">0</span>
+          <span className="text-white font-bold text-sm">{userState?.aura ?? 0}</span>
           <span className="text-gray-400 text-xs">Aura</span>
         </div>
 
         <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
-          <span className="text-white font-bold text-sm">0</span>
+          <span className="text-white font-bold text-sm">{userState?.energy ?? 0}</span>
           <svg className="w-4 h-4 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
             <path d="M13 3L4 14h7v7l9-11h-7V3z" />
           </svg>

@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { SignInPage, SignUpPage, ResendVerificationPage, OtpPage, ForgotPasswordPage, ResetPasswordPage } from './pages/auth';
+import { SignInPage, SignUpPage, ResendVerificationPage, OtpPage, ForgotPasswordPage, ResetPasswordPage, OAuthCallbackPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
+import { CourseDetailPage } from './pages/course';
 import { usePreventAuthenticatedAccess } from './hooks/usePreventAuthenticatedAccess';
 import { useRequireAuthenticatedAccess } from './hooks/useRequireAuthenticatedAccess';
 import { routes } from './lib/constants';
@@ -41,7 +42,9 @@ export default function App() {
         <Route path={routes.otp} element={<AuthRoute><OtpPage /></AuthRoute>} />
         <Route path={routes.forgotPassword} element={<AuthRoute><ForgotPasswordPage /></AuthRoute>} />
         <Route path={routes.resetPassword} element={<AuthRoute><ResetPasswordPage /></AuthRoute>} />
+        <Route path={routes.authCallback} element={<OAuthCallbackPage />} />
         <Route path={routes.dashboard} element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        <Route path={routes.course} element={<ProtectedRoute><CourseDetailPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

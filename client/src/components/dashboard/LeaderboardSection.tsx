@@ -1,24 +1,28 @@
-export const LeaderboardSection = () => {
-  const rankings = [
-    { rank: 1, name: 'Furab', username: '@furab', aura: 10000, avatar: '' },
-    { rank: 2, name: 'Sugeng Kos', username: '@sugeng', aura: 8500, avatar: '' },
-    { rank: 3, name: 'TheProdigy', username: '@prodigy', aura: 6200, avatar: '' },
-    { rank: 4, name: 'Komdigy MBG', username: '@komdigy', aura: 4100, avatar: '' },
-    { rank: 5, name: 'CodeMaster', username: '@codemaster', aura: 3800, avatar: '' },
-  ];
+import type { LeaderboardEntry } from '../../types/leaderboard';
 
-  const getRankStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400', icon: '🏆' };
-      case 2:
-        return { bg: 'bg-gray-400/10', border: 'border-gray-400/30', text: 'text-gray-300', icon: '🥈' };
-      case 3:
-        return { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', icon: '🥉' };
-      default:
-        return { bg: 'bg-white/5', border: 'border-white/10', text: 'text-gray-400', icon: '' };
-    }
-  };
+type LeaderboardSectionProps = {
+  userRank: number;
+  userAura: number;
+  userDisplayName: string;
+  userUsername: string;
+  entries: LeaderboardEntry[];
+};
+
+const getRankStyle = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400', icon: '🏆' };
+    case 2:
+      return { bg: 'bg-gray-400/10', border: 'border-gray-400/30', text: 'text-gray-300', icon: '🥈' };
+    case 3:
+      return { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', icon: '🥉' };
+    default:
+      return { bg: 'bg-white/5', border: 'border-white/10', text: 'text-gray-400', icon: '' };
+  }
+};
+
+export const LeaderboardSection = ({ userRank, userAura, userDisplayName, userUsername, entries }: LeaderboardSectionProps) => {
+  const showYourRank = userRank > 0 && userAura > 0;
 
   return (
     <section id="leaderboard" className="py-8">
@@ -29,7 +33,7 @@ export const LeaderboardSection = () => {
         </div>
 
         <div className="space-y-3">
-          {rankings.map((user) => {
+          {entries.map((user) => {
             const style = getRankStyle(user.rank);
             return (
               <div
@@ -47,8 +51,8 @@ export const LeaderboardSection = () => {
 
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                      {user.avatar ? (
-                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.display_name} className="w-full h-full object-cover" />
                       ) : (
                         <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -56,8 +60,8 @@ export const LeaderboardSection = () => {
                       )}
                     </div>
                     <div>
-                      <h3 className="text-white font-semibold">{user.name}</h3>
-                      <p className="text-gray-500 text-xs">{user.username}</p>
+                      <h3 className="text-white font-semibold">{user.display_name}</h3>
+                      <p className="text-gray-500 text-xs">@{user.username}</p>
                     </div>
                   </div>
                 </div>
@@ -71,6 +75,37 @@ export const LeaderboardSection = () => {
               </div>
             );
           })}
+
+          {showYourRank && (
+            <>
+              <div className="border-t border-white/10 my-4" />
+              <div className="text-gray-400 text-sm mb-2">Your Rank</div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#22D3EE]/10 border border-[#22D3EE]/30 flex items-center justify-center">
+                    <span className="font-bold text-[#22D3EE]">#{userRank}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold">{userDisplayName}</h3>
+                      <p className="text-gray-500 text-xs">@{userUsername}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-[#22D3EE]">{userAura.toLocaleString()}</span>
+                  <span className="text-gray-500 text-sm">Aura</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>
