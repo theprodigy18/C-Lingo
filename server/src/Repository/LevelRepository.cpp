@@ -114,4 +114,104 @@ namespace CLingo
 
         return progress;
     }
+
+    std::vector<Model::QuizQuestion> LevelRepository::FindQuestionsByLevelId(PooledConnection& conn, i32 levelId)
+    {
+        pqxx::read_transaction txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                            SELECT id, level_id, question_text, explanation, order_index
+                            FROM quiz_questions
+                            WHERE level_id = $1
+                            ORDER BY order_index ASC, id ASC
+                            )",
+                                    pqxx::params{levelId})};
+
+        return Model::MapQuizQuestions(result);
+    }
+
+    std::vector<Model::QuizOption> LevelRepository::FindOptionsByQuestionIds(
+        PooledConnection& conn,
+        const std::vector<i32>& questionIds)
+    {
+        if (questionIds.empty())
+            return {};
+
+        pqxx::read_transaction txn{conn.Get()};
+
+        std::string placeholders;
+        for (size_t i = 0; i < questionIds.size(); ++i)
+        {
+            placeholders += (i > 0 ? ", " : "") + std::to_string(questionIds[i]);
+        }
+
+        auto result{txn.exec(
+            "SELECT id, question_id, option_text, is_correct "
+            "FROM quiz_options "
+            "WHERE question_id IN (" + placeholders + ") "
+            "ORDER BY id ASC")};
+
+        return Model::MapQuizOptions(result);
+    }
+
+    std::optional<Model::QuizOption> LevelRepository::FindCorrectOption(PooledConnection& conn, i32 questionId)
+    {
+        pqxx::read_transaction txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                            SELECT id, question_id, option_text, is_correct
+                            FROM quiz_options
+                            WHERE question_id = $1 AND is_correct = TRUE
+                            LIMIT 1
+                            )",
+                                    pqxx::params{questionId})};
+
+        if (result.empty())
+            return std::nullopt;
+
+        return Model::MapQuizOption(result[0]);
+    }
+
+    std::optional<Model::UserLevelProgress> LevelRepository::FindUserProgress(
+        PooledConnection& conn,
+        i32 userId,
+        i32 levelId)
+    {
+        pqxx::read_transaction txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                            SELECT is_unlocked, is_completed, quiz_score, attempts, completed_at
+                            FROM user_level_progress
+                            WHERE user_id = $1 AND level_id = $2
+                            )",
+                                    pqxx::params{userId, levelId})};
+
+        if (result.empty())
+            return std::nullopt;
+
+        return Model::MapUserLevelProgress(result[0]);
+    }
+
+    void LevelRepository::UpsertUserProgress(
+        PooledConnection& conn,
+        i32 userId,
+        i32 levelId,
+        i32 quizScore,
+        bool isCompleted)
+    {
+        pqxx::work txn{conn.Get()};
+
+        txn.exec_params(R"(
+            INSERT INTO user_level_progress (user_id, level_id, is_unlocked, is_completed, quiz_score, attempts, completed_at)
+            VALUES ($1, $2, TRUE, $3, $4, 0, NULL)
+            ON CONFLICT (user_id, level_id) DO UPDATE SET
+                quiz_score = CASE WHEN $4 > user_level_progress.quiz_score THEN $4 ELSE user_level_progress.quiz_score END,
+                is_completed = user_level_progress.is_completed OR $3,
+                attempts = user_level_progress.attempts + 1,
+                completed_at = CASE WHEN $3 AND NOT user_level_progress.is_completed THEN NOW() ELSE user_level_progress.completed_at END
+            )",
+                pqxx::params{userId, levelId, isCompleted, quizScore});
+
+        txn.commit();
+    }
 } // namespace CLingo

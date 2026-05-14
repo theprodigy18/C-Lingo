@@ -5,12 +5,13 @@
 
 #include <Common/Common.hpp>
 
-namespace CLingo::Model
+#include <Model/Level.hpp>
+
+namespace CLingo::Dto
 {
     struct QuizOption
     {
         i32 id;
-        i32 questionId;
         std::string optionText;
         bool isCorrect;
     };
@@ -18,14 +19,13 @@ namespace CLingo::Model
     struct QuizQuestion
     {
         i32 id;
-        i32 levelId;
         std::string questionText;
         std::string explanation;
         i32 orderIndex;
         std::vector<QuizOption> options;
     };
 
-    struct Level
+    struct LevelDetail
     {
         i32 id;
         i32 levelNumber;
@@ -34,14 +34,17 @@ namespace CLingo::Model
         i32 energyCost;
         i32 quizAuraReward;
         bool isPublished;
-    };
-
-    struct UserLevelProgress
-    {
         bool isUnlocked;
         bool isCompleted;
         i32 quizScore;
         i32 attempts;
         std::string completedAt;
+        std::vector<Model::QuizQuestion> questions;
     };
-} // namespace CLingo::Model
+
+    struct LevelDetailResponse
+    {
+        LevelDetail level;
+        bool hasLevel;
+    };
+} // namespace CLingo::Dto

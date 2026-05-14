@@ -131,7 +131,7 @@ namespace CLingo
             description_md TEXT         NOT NULL,
             constraints_md TEXT,
             starter_code   TEXT         NOT NULL,
-            solution_code  TEXT,
+            tags           TEXT         NOT NULL DEFAULT '',
             difficulty     VARCHAR(20)  NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
             energy_cost    INT          NOT NULL DEFAULT 5   CHECK (energy_cost >= 0),
             aura_reward    INT          NOT NULL DEFAULT 100 CHECK (aura_reward >= 0),
@@ -146,6 +146,7 @@ namespace CLingo
             problem_id      INT     NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
             input           TEXT    NOT NULL,
             expected_output TEXT    NOT NULL,
+            explanation_md  TEXT,
             is_hidden       BOOLEAN NOT NULL DEFAULT FALSE,
             order_index     INT     NOT NULL DEFAULT 0
         );
@@ -157,7 +158,6 @@ namespace CLingo
             user_id           INT         NOT NULL REFERENCES users(id)    ON DELETE CASCADE,
             problem_id        INT         NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
             code              TEXT        NOT NULL,
-            language          VARCHAR(20) NOT NULL DEFAULT 'c',
             status            VARCHAR(30) NOT NULL CHECK (status IN (
                                   'pending', 'running',
                                   'accepted', 'wrong_answer',
@@ -166,8 +166,6 @@ namespace CLingo
                               )),
             runtime_ms        INT,
             memory_kb         INT,
-            time_complexity   VARCHAR(30),
-            memory_complexity VARCHAR(30),
             error_output      TEXT,
             submitted_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
@@ -241,6 +239,11 @@ namespace CLingo
             txn.exec(
                 "CREATE INDEX IF NOT EXISTS idx_submissions_user_problem "
                 "ON submissions(user_id, problem_id, status);");
+
+            txn.exec(
+                "CREATE INDEX IF NOT EXISTS idx_submissions_problem_user "
+                "ON submissions(problem_id, user_id, status, runtime_ms ASC NULLS LAST) "
+                "WHERE status = 'accepted';");
 
             // Logs
             txn.exec(

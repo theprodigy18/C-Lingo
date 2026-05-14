@@ -24,6 +24,9 @@ namespace CLingo
 
     private:
         crow::response HandleGetLevels(const crow::request& req);
+        crow::response HandleGetLevelDetail(const crow::request& req);
+        crow::response HandleSubmitQuiz(const crow::request& req);
+        crow::response HandleStartLevel(const crow::request& req);
 
     private:
         App& m_App;

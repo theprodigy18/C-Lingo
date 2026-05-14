@@ -15,6 +15,7 @@
 #include <Repository/UserRepository.hpp>
 #include <Repository/EnergyLogRepository.hpp>
 #include <Repository/LevelRepository.hpp>
+#include <Repository/AuraLogRepository.hpp>
 #include <Service/EmailService.hpp>
 #include <Service/OAuthService.hpp>
 #include <Service/AuthService.hpp>
@@ -89,6 +90,7 @@ namespace CLingo
         std::unique_ptr<UserRepository> m_UserRepository;
         std::unique_ptr<EnergyLogRepository> m_EnergyLogRepository;
         std::unique_ptr<LevelRepository> m_LevelRepository;
+        std::unique_ptr<AuraLogRepository> m_AuraLogRepository;
 
         // Services
         std::unique_ptr<EmailService> m_EmailService;

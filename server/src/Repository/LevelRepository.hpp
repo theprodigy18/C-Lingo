@@ -20,6 +20,13 @@ namespace CLingo
         std::optional<Model::Level> FindById(PooledConnection& conn, i32 levelId);
         std::vector<std::pair<i32, bool>> FindProgressByUserId(PooledConnection& conn, i32 userId, const std::vector<i32>& levelIds);
 
+        std::vector<Model::QuizQuestion> FindQuestionsByLevelId(PooledConnection& conn, i32 levelId);
+        std::vector<Model::QuizOption> FindOptionsByQuestionIds(PooledConnection& conn, const std::vector<i32>& questionIds);
+        std::optional<Model::QuizOption> FindCorrectOption(PooledConnection& conn, i32 questionId);
+
+        std::optional<Model::UserLevelProgress> FindUserProgress(PooledConnection& conn, i32 userId, i32 levelId);
+        void UpsertUserProgress(PooledConnection& conn, i32 userId, i32 levelId, i32 quizScore, bool isCompleted);
+
     private:
         LevelCache& m_LevelCache;
     };

@@ -25,6 +25,8 @@ namespace CLingo
         void UpdateLastLoginDate(PooledConnection& conn, i32 userId);
         std::vector<Model::User> FindTopByAura(PooledConnection& conn, i32 limit);
         std::optional<i32> FindUserRank(PooledConnection& conn, i32 userId);
+        void DeductEnergy(PooledConnection& conn, i32 userId, i32 energyCost);
+        void AddAura(PooledConnection& conn, i32 userId, i32 aura);
 
     private:
         UserCache& m_UserCache;

@@ -186,4 +186,43 @@ namespace CLingo
         return rank;
     }
 
+    void UserRepository::DeductEnergy(PooledConnection& conn, i32 userId, i32 energyCost)
+    {
+        pqxx::work txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                                UPDATE users
+                                SET energy = energy - $2
+                                WHERE id = $1
+                                RETURNING id
+                                )",
+                                    pqxx::params{userId, energyCost})};
+
+        txn.commit();
+
+        if (result.empty())
+            throw InternalError("Failed to deduct energy");
+
+        m_UserCache.Invalidate(userId);
+    }
+
+    void UserRepository::AddAura(PooledConnection& conn, i32 userId, i32 aura)
+    {
+        pqxx::work txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                                UPDATE users
+                                SET aura = aura + $2
+                                WHERE id = $1
+                                RETURNING id
+                                )",
+                                    pqxx::params{userId, aura})};
+
+        txn.commit();
+
+        if (result.empty())
+            throw InternalError("Failed to add aura");
+
+        m_UserCache.Invalidate(userId);
+    }
 } // namespace CLingo

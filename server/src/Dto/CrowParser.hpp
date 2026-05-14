@@ -23,6 +23,10 @@
 #include "EnergyLog/EnergyLogResponse.hpp"
 
 #include "Level/LevelListResponse.hpp"
+#include "Level/LevelDetailResponse.hpp"
+#include "Level/QuizSubmitRequest.hpp"
+#include "Level/QuizSubmitResponse.hpp"
+#include "Level/StartLevelRequest.hpp"
 
 namespace CLingo::Dto
 {
@@ -192,6 +196,7 @@ namespace CLingo::Dto
             j["levels"][i]["quiz_aura_reward"] = res.levels[i].quizAuraReward;
             j["levels"][i]["is_unlocked"] = res.levels[i].isUnlocked;
             j["levels"][i]["is_completed"] = res.levels[i].isCompleted;
+            j["levels"][i]["is_started"] = res.levels[i].isStarted;
         }
 
         return j;
@@ -226,4 +231,128 @@ namespace CLingo::Dto
         return j;
     }
 
+#pragma endregion
+
+#pragma region Quiz
+    inline std::optional<QuizSubmitRequest> JsonToQuizSubmitRequest(const crow::json::rvalue& j)
+    {
+        if (!j.has("level_id") || !j.has("answers"))
+        {
+            LOG_WARN("Missing required fields");
+            return std::nullopt;
+        }
+
+        std::unordered_map<i32, i32> answers;
+        auto answerKeys = j["answers"].keys();
+        for (const auto& key : answerKeys)
+        {
+            i32 questionId = std::stoi(key);
+            i32 optionId = j["answers"][key].i();
+            answers[questionId] = optionId;
+        }
+
+        return QuizSubmitRequest{
+            .levelId = static_cast<i32>(j["level_id"].i()),
+            .answers = std::move(answers)};
+    }
+
+    inline crow::json::wvalue QuizSubmitResponseToJson(const QuizSubmitResponse& res)
+    {
+        crow::json::wvalue j;
+        j["score"] = res.score;
+        j["total"] = res.total;
+        j["correct"] = res.correct;
+        j["passed"] = res.passed;
+        j["is_completed"] = res.isCompleted;
+        j["is_new_completion"] = res.isNewCompletion;
+
+        crow::json::wvalue::list results;
+        for (const auto& r : res.results)
+        {
+            crow::json::wvalue qj;
+            qj["question_id"] = r.questionId;
+            qj["question_text"] = r.questionText;
+            qj["selected_option_id"] = r.selectedOptionId;
+            qj["selected_option_text"] = r.selectedOptionText;
+            qj["correct_option_id"] = r.correctOptionId;
+            qj["correct_option_text"] = r.correctOptionText;
+            qj["is_correct"] = r.isCorrect;
+            qj["explanation"] = r.explanation;
+            results.push_back(std::move(qj));
+        }
+        j["results"] = std::move(results);
+
+        return j;
+    }
+
+    inline crow::json::wvalue LevelDetailToJson(const LevelDetail& level)
+    {
+        crow::json::wvalue j;
+        j["id"] = level.id;
+        j["level_number"] = level.levelNumber;
+        j["title"] = level.title;
+        j["content_md"] = level.contentMd;
+        j["energy_cost"] = level.energyCost;
+        j["quiz_aura_reward"] = level.quizAuraReward;
+        j["is_published"] = level.isPublished;
+        j["is_unlocked"] = level.isUnlocked;
+        j["is_completed"] = level.isCompleted;
+        j["quiz_score"] = level.quizScore;
+        j["attempts"] = level.attempts;
+        j["completed_at"] = level.completedAt;
+
+        crow::json::wvalue::list questions;
+        for (const auto& q : level.questions)
+        {
+            crow::json::wvalue qj;
+            qj["id"] = q.id;
+            qj["question_text"] = q.questionText;
+            qj["explanation"] = q.explanation;
+            qj["order_index"] = q.orderIndex;
+
+            crow::json::wvalue::list options;
+            for (const auto& opt : q.options)
+            {
+                crow::json::wvalue oj;
+                oj["id"] = opt.id;
+                oj["option_text"] = opt.optionText;
+                options.push_back(std::move(oj));
+            }
+            qj["options"] = std::move(options);
+            questions.push_back(std::move(qj));
+        }
+        j["questions"] = std::move(questions);
+
+        return j;
+    }
+
+    inline crow::json::wvalue LevelDetailResponseToJson(const LevelDetailResponse& res)
+    {
+        crow::json::wvalue j;
+        if (res.hasLevel)
+            j["level"] = LevelDetailToJson(res.level);
+        return j;
+    }
+
+    inline std::optional<StartLevelRequest> JsonToStartLevelRequest(const crow::json::rvalue& j)
+    {
+        if (!j.has("level_id"))
+        {
+            LOG_WARN("Missing level_id");
+            return std::nullopt;
+        }
+
+        return StartLevelRequest{
+            .levelId = static_cast<i32>(j["level_id"].i())};
+    }
+
+    inline crow::json::wvalue StartLevelResponseToJson(const StartLevelResponse& res)
+    {
+        crow::json::wvalue j;
+        j["success"] = res.success;
+        j["message"] = res.message;
+        j["remaining_energy"] = res.remainingEnergy;
+        return j;
+    }
+#pragma endregion
 } // namespace CLingo::Dto

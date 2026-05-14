@@ -128,4 +128,60 @@ namespace CLingo::Model
 
         return energyLogs;
     }
+
+    inline QuizOption MapQuizOption(const pqxx::row& row)
+    {
+        return QuizOption{
+            row["id"].as<i32>(),
+            row["question_id"].as<i32>(),
+            row["option_text"].as<std::string>(),
+            row["is_correct"].as<bool>()};
+    }
+
+    inline std::vector<QuizOption> MapQuizOptions(const pqxx::result& result)
+    {
+        std::vector<QuizOption> options;
+        options.reserve(result.size());
+
+        for (const auto& row : result)
+        {
+            options.emplace_back(MapQuizOption(row));
+        }
+
+        return options;
+    }
+
+    inline QuizQuestion MapQuizQuestion(const pqxx::row& row)
+    {
+        return QuizQuestion{
+            row["id"].as<i32>(),
+            row["level_id"].as<i32>(),
+            row["question_text"].as<std::string>(),
+            row["explanation"].is_null() ? "" : row["explanation"].as<std::string>(),
+            row["order_index"].as<i32>(),
+            {}};
+    }
+
+    inline std::vector<QuizQuestion> MapQuizQuestions(const pqxx::result& result)
+    {
+        std::vector<QuizQuestion> questions;
+        questions.reserve(result.size());
+
+        for (const auto& row : result)
+        {
+            questions.emplace_back(MapQuizQuestion(row));
+        }
+
+        return questions;
+    }
+
+    inline UserLevelProgress MapUserLevelProgress(const pqxx::row& row)
+    {
+        return UserLevelProgress{
+            row["is_unlocked"].as<bool>(),
+            row["is_completed"].as<bool>(),
+            row["quiz_score"].is_null() ? 0 : row["quiz_score"].as<i32>(),
+            row["attempts"].as<i32>(),
+            row["completed_at"].is_null() ? "" : row["completed_at"].as<std::string>()};
+    }
 } // namespace CLingo::Model

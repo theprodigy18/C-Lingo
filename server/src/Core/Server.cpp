@@ -83,6 +83,7 @@ namespace CLingo
         m_UserRepository = std::make_unique<UserRepository>(*m_UserCache, *m_LeaderboardCache);
         m_EnergyLogRepository = std::make_unique<EnergyLogRepository>();
         m_LevelRepository = std::make_unique<LevelRepository>(*m_LevelCache);
+        m_AuraLogRepository = std::make_unique<AuraLogRepository>();
 
         // Setup services
         m_EmailService = std::make_unique<EmailService>(m_Config.email);
@@ -94,7 +95,7 @@ namespace CLingo
             m_Config.jwtSecret,
             m_Config.jwtIssuer);
         m_UserService = std::make_unique<UserService>(*m_UserRepository, *m_EnergyLogRepository);
-        m_LevelService = std::make_unique<LevelService>(*m_LevelRepository);
+        m_LevelService = std::make_unique<LevelService>(*m_LevelRepository, *m_UserRepository, *m_EnergyLogRepository, *m_AuraLogRepository);
 
         // Setup handlers
         m_Handlers.push_back(

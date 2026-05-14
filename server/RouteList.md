@@ -17,15 +17,72 @@
 
 ---
 
-## User (`/users`) 🔒
+## User (`/user`) 🔒
 
 > All routes require authentication.
 
-| Method | Endpoint          | Description              |
-|--------|-------------------|--------------------------|
-| GET    | `/users/me`       | Get current user profile |
-| GET    | `/users/me/state` | Get current user state   |
-| PUT    | `/users/me`       | Edit user information    |
-| POST    | `/users/me/energy/claims` | Claim daily energy for user  |
-| GET    | `/users/me/energy/logs`       | Get energy logs of user    |
+| Method | Endpoint                  | Description                       |
+|--------|---------------------------|-----------------------------------|
+| GET    | `/user/me`                | Get current user profile          |
+| GET    | `/user/me/state`          | Get current user state            |
+| PUT    | `/user/me`                | Edit user information             |
+| POST   | `/user/me/energy/claim`   | Claim daily energy for user       |
+| GET    | `/user/me/energy/logs`    | Get energy logs of user          |
+| GET    | `/user/me/leaderboard`    | Get leaderboard with user rank   |
 
+---
+
+## Levels (`/levels`) 🔒
+
+> All routes require authentication.
+
+| Method | Endpoint                  | Description                       |
+|--------|---------------------------|-----------------------------------|
+| GET    | `/levels`                 | Get all published levels         |
+| POST   | `/levels/detail`          | Get level detail with quiz       |
+| POST   | `/levels/start`           | Start a level (deduct energy)   |
+| POST   | `/levels/quiz/submit`     | Submit quiz answers               |
+
+### Start Level
+
+Request body:
+```json
+{
+  "level_id": 1
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "message": "Level started",
+  "remaining_energy": 90
+}
+```
+
+### Submit Quiz
+
+Request body:
+```json
+{
+  "level_id": 1,
+  "answers": {
+    "1": 3,
+    "2": 1,
+    "3": 4
+  }
+}
+```
+
+Response:
+```json
+{
+  "score": 100,
+  "total": 3,
+  "correct": 3,
+  "passed": true,
+  "explanation": "You answered 3 out of 3 questions correctly.",
+  "is_completed": true
+}
+```

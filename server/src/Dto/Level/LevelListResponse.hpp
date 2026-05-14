@@ -16,6 +16,7 @@ namespace CLingo::Dto
         i32 quizAuraReward;
         bool isUnlocked;
         bool isCompleted;
+        bool isStarted;
     };
 
     struct LevelListResponse
