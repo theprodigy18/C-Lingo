@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: c-lingo-sandbox:latest
+    container_name: c-lingo-sandbox
+    stdin_open: true
+    tty: true
+    # Resource limits via Docker
+    mem_limit: 512m
+    pids_limit: 100
+    # Network isolation - no network access
+    network_mode: "none"
+    volumes:
+      - ./tmp:/code/tmp
+    restart: "no"
+
+networks: {}
