@@ -7,11 +7,16 @@
 
 #include <Model/User.hpp>
 #include <Model/EnergyLog.hpp>
+#include <Model/Problem.hpp>
+#include <Model/Submission.hpp>
 #include "User/SessionUser.hpp"
 #include "User/UserState.hpp"
 #include "User/PrivateUser.hpp"
 #include "User/LeaderboardResponse.hpp"
 #include "EnergyLog/EnergyLogResponse.hpp"
+#include "Problem/ProblemListResponse.hpp"
+#include "Problem/ProblemDetailResponse.hpp"
+#include "Problem/SubmissionListResponse.hpp"
 
 namespace CLingo::Dto
 {
@@ -98,4 +103,88 @@ namespace CLingo::Dto
 
         return LeaderboardResponse{userRank, std::move(entries)};
     }
+
+#pragma region Problem
+    inline ProblemListItem ProblemToListItem(const Model::Problem& problem)
+    {
+        return ProblemListItem{
+            problem.id,
+            problem.title,
+            problem.slug,
+            problem.difficulty,
+            problem.energyCost,
+            problem.auraReward,
+            problem.tags,
+        };
+    }
+
+    inline std::vector<ProblemListItem> ProblemsToListItems(const std::vector<Model::Problem>& problems)
+    {
+        std::vector<ProblemListItem> items;
+        items.reserve(problems.size());
+        for (const auto& problem : problems)
+            items.push_back(ProblemToListItem(problem));
+        return items;
+    }
+
+    inline TestCaseDto TestCaseToDto(const Model::TestCase& tc)
+    {
+        return TestCaseDto{
+            tc.id,
+            tc.input,
+            tc.expectedOutput,
+            tc.explanationMd,
+            tc.isHidden,
+            tc.orderIndex,
+        };
+    }
+
+    inline std::vector<TestCaseDto> TestCasesToDtos(const std::vector<Model::TestCase>& testCases)
+    {
+        std::vector<TestCaseDto> dtos;
+        dtos.reserve(testCases.size());
+        for (const auto& tc : testCases)
+            dtos.push_back(TestCaseToDto(tc));
+        return dtos;
+    }
+
+    inline ProblemDetail ProblemToDetail(const Model::Problem& problem, const std::vector<Model::TestCase>& testCases)
+    {
+        return ProblemDetail{
+            problem.id,
+            problem.title,
+            problem.slug,
+            problem.descriptionMd,
+            problem.constraintsMd,
+            problem.starterCode,
+            problem.tags,
+            problem.difficulty,
+            problem.energyCost,
+            problem.auraReward,
+            TestCasesToDtos(testCases),
+        };
+    }
+#pragma endregion
+
+#pragma region Submission
+    inline SubmissionItem SubmissionToItem(const Model::Submission& sub)
+    {
+        return SubmissionItem{
+            sub.id,
+            sub.status,
+            sub.runtimeMs,
+            sub.memoryKb,
+            sub.submittedAt,
+        };
+    }
+
+    inline std::vector<SubmissionItem> SubmissionsToItems(const std::vector<Model::Submission>& submissions)
+    {
+        std::vector<SubmissionItem> items;
+        items.reserve(submissions.size());
+        for (const auto& sub : submissions)
+            items.push_back(SubmissionToItem(sub));
+        return items;
+    }
+#pragma endregion
 } // namespace CLingo::Dto

@@ -6,6 +6,7 @@
 #include <Handler/AuthHandler.hpp>
 #include <Handler/UserHandler.hpp>
 #include <Handler/LevelHandler.hpp>
+#include <Handler/ProblemHandler.hpp>
 
 namespace CLingo
 {
@@ -84,6 +85,8 @@ namespace CLingo
         m_EnergyLogRepository = std::make_unique<EnergyLogRepository>();
         m_LevelRepository = std::make_unique<LevelRepository>(*m_LevelCache);
         m_AuraLogRepository = std::make_unique<AuraLogRepository>();
+        m_ProblemRepository = std::make_unique<ProblemRepository>();
+        m_SubmissionRepository = std::make_unique<SubmissionRepository>();
 
         // Setup services
         m_EmailService = std::make_unique<EmailService>(m_Config.email);
@@ -96,6 +99,8 @@ namespace CLingo
             m_Config.jwtIssuer);
         m_UserService = std::make_unique<UserService>(*m_UserRepository, *m_EnergyLogRepository);
         m_LevelService = std::make_unique<LevelService>(*m_LevelRepository, *m_UserRepository, *m_EnergyLogRepository, *m_AuraLogRepository);
+        m_ProblemService = std::make_unique<ProblemService>(*m_ProblemRepository);
+        m_SubmissionService = std::make_unique<SubmissionService>(*m_SubmissionRepository);
 
         // Setup handlers
         m_Handlers.push_back(
@@ -116,6 +121,13 @@ namespace CLingo
                 "/api/levels",
                 *m_App,
                 *m_LevelService,
+                *m_Pool));
+        m_Handlers.push_back(
+            std::make_unique<ProblemHandler>(
+                "/api/problems",
+                *m_App,
+                *m_ProblemService,
+                *m_SubmissionService,
                 *m_Pool));
 
         for (auto& handler : m_Handlers)

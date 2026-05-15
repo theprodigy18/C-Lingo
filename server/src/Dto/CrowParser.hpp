@@ -27,6 +27,9 @@
 #include "Level/QuizSubmitRequest.hpp"
 #include "Level/QuizSubmitResponse.hpp"
 #include "Level/StartLevelRequest.hpp"
+#include "Problem/ProblemListResponse.hpp"
+#include "Problem/ProblemDetailResponse.hpp"
+#include "Problem/SubmissionListResponse.hpp"
 
 namespace CLingo::Dto
 {
@@ -352,6 +355,85 @@ namespace CLingo::Dto
         j["success"] = res.success;
         j["message"] = res.message;
         j["remaining_energy"] = res.remainingEnergy;
+        return j;
+    }
+#pragma endregion
+
+#pragma region Problem
+    inline crow::json::wvalue ProblemListResponseToJson(const ProblemListResponse& res)
+    {
+        crow::json::wvalue j;
+        crow::json::wvalue::list problems;
+        for (const auto& p : res.problems)
+        {
+            crow::json::wvalue item;
+            item["id"] = p.id;
+            item["title"] = p.title;
+            item["slug"] = p.slug;
+            item["difficulty"] = p.difficulty;
+            item["energy_cost"] = p.energyCost;
+            item["aura_reward"] = p.auraReward;
+            item["tags"] = p.tags;
+            problems.push_back(std::move(item));
+        }
+        j["problems"] = std::move(problems);
+        return j;
+    }
+
+    inline crow::json::wvalue ProblemDetailToJson(const ProblemDetail& problem)
+    {
+        crow::json::wvalue j;
+        j["id"] = problem.id;
+        j["title"] = problem.title;
+        j["slug"] = problem.slug;
+        j["description_md"] = problem.descriptionMd;
+        j["constraints_md"] = problem.constraintsMd;
+        j["starter_code"] = problem.starterCode;
+        j["tags"] = problem.tags;
+        j["difficulty"] = problem.difficulty;
+        j["energy_cost"] = problem.energyCost;
+        j["aura_reward"] = problem.auraReward;
+
+        crow::json::wvalue::list testCases;
+        for (const auto& tc : problem.testCases)
+        {
+            crow::json::wvalue tcj;
+            tcj["id"] = tc.id;
+            tcj["input"] = tc.input;
+            tcj["expected_output"] = tc.expectedOutput;
+            tcj["explanation_md"] = tc.explanationMd;
+            tcj["is_hidden"] = tc.isHidden;
+            tcj["order_index"] = tc.orderIndex;
+            testCases.push_back(std::move(tcj));
+        }
+        j["test_cases"] = std::move(testCases);
+
+        return j;
+    }
+
+    inline crow::json::wvalue ProblemDetailResponseToJson(const ProblemDetailResponse& res)
+    {
+        crow::json::wvalue j;
+        if (res.hasProblem)
+            j["problem"] = ProblemDetailToJson(res.problem);
+        return j;
+    }
+
+    inline crow::json::wvalue SubmissionListResponseToJson(const SubmissionListResponse& res)
+    {
+        crow::json::wvalue j;
+        crow::json::wvalue::list submissions;
+        for (const auto& s : res.submissions)
+        {
+            crow::json::wvalue subit;
+            subit["id"] = s.id;
+            subit["status"] = s.status;
+            subit["runtime_ms"] = s.runtimeMs;
+            subit["memory_kb"] = s.memoryKb;
+            subit["submitted_at"] = s.submittedAt;
+            submissions.push_back(std::move(subit));
+        }
+        j["submissions"] = std::move(submissions);
         return j;
     }
 #pragma endregion

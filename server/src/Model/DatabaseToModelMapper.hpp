@@ -12,6 +12,8 @@
 #include "OAuthAccount.hpp"
 #include "EnergyLog.hpp"
 #include "Level.hpp"
+#include "Problem.hpp"
+#include "Submission.hpp"
 
 namespace CLingo::Model
 {
@@ -183,5 +185,75 @@ namespace CLingo::Model
             row["quiz_score"].is_null() ? 0 : row["quiz_score"].as<i32>(),
             row["attempts"].as<i32>(),
             row["completed_at"].is_null() ? "" : row["completed_at"].as<std::string>()};
+    }
+
+    inline TestCase MapTestCase(const pqxx::row& row)
+    {
+        return TestCase{
+            row["id"].as<i32>(),
+            row["problem_id"].as<i32>(),
+            row["input"].as<std::string>(),
+            row["expected_output"].as<std::string>(),
+            row["explanation_md"].is_null() ? "" : row["explanation_md"].as<std::string>(),
+            row["is_hidden"].as<bool>(),
+            row["order_index"].as<i32>()};
+    }
+
+    inline std::vector<TestCase> MapTestCases(const pqxx::result& result)
+    {
+        std::vector<TestCase> testCases;
+        testCases.reserve(result.size());
+        for (const auto& row : result)
+            testCases.emplace_back(MapTestCase(row));
+        return testCases;
+    }
+
+    inline Problem MapProblem(const pqxx::row& row)
+    {
+        return Problem{
+            row["id"].as<i32>(),
+            row["title"].as<std::string>(),
+            row["slug"].as<std::string>(),
+            row["description_md"].as<std::string>(),
+            row["constraints_md"].is_null() ? "" : row["constraints_md"].as<std::string>(),
+            row["starter_code"].as<std::string>(),
+            row["tags"].as<std::string>(),
+            row["difficulty"].as<std::string>(),
+            row["energy_cost"].as<i32>(),
+            row["aura_reward"].as<i32>(),
+            row["is_published"].as<bool>(),
+            row["created_at"].as<std::string>()};
+    }
+
+    inline std::vector<Problem> MapProblems(const pqxx::result& result)
+    {
+        std::vector<Problem> problems;
+        problems.reserve(result.size());
+        for (const auto& row : result)
+            problems.emplace_back(MapProblem(row));
+        return problems;
+    }
+
+    inline Submission MapSubmission(const pqxx::row& row)
+    {
+        return Submission{
+            row["id"].as<i32>(),
+            row["user_id"].as<i32>(),
+            row["problem_id"].as<i32>(),
+            row["code"].as<std::string>(),
+            row["status"].as<std::string>(),
+            row["runtime_ms"].is_null() ? 0 : row["runtime_ms"].as<i32>(),
+            row["memory_kb"].is_null() ? 0 : row["memory_kb"].as<i32>(),
+            row["error_output"].is_null() ? "" : row["error_output"].as<std::string>(),
+            row["submitted_at"].as<std::string>()};
+    }
+
+    inline std::vector<Submission> MapSubmissions(const pqxx::result& result)
+    {
+        std::vector<Submission> submissions;
+        submissions.reserve(result.size());
+        for (const auto& row : result)
+            submissions.emplace_back(MapSubmission(row));
+        return submissions;
     }
 } // namespace CLingo::Model

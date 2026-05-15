@@ -16,11 +16,15 @@
 #include <Repository/EnergyLogRepository.hpp>
 #include <Repository/LevelRepository.hpp>
 #include <Repository/AuraLogRepository.hpp>
+#include <Repository/ProblemRepository.hpp>
+#include <Repository/SubmissionRepository.hpp>
 #include <Service/EmailService.hpp>
 #include <Service/OAuthService.hpp>
 #include <Service/AuthService.hpp>
 #include <Service/UserService.hpp>
 #include <Service/LevelService.hpp>
+#include <Service/ProblemService.hpp>
+#include <Service/SubmissionService.hpp>
 #include <Handler/IHandler.hpp>
 
 namespace CLingo
@@ -91,6 +95,8 @@ namespace CLingo
         std::unique_ptr<EnergyLogRepository> m_EnergyLogRepository;
         std::unique_ptr<LevelRepository> m_LevelRepository;
         std::unique_ptr<AuraLogRepository> m_AuraLogRepository;
+        std::unique_ptr<ProblemRepository> m_ProblemRepository;
+        std::unique_ptr<SubmissionRepository> m_SubmissionRepository;
 
         // Services
         std::unique_ptr<EmailService> m_EmailService;
@@ -98,6 +104,8 @@ namespace CLingo
         std::unique_ptr<AuthService> m_AuthService;
         std::unique_ptr<UserService> m_UserService;
         std::unique_ptr<LevelService> m_LevelService;
+        std::unique_ptr<ProblemService> m_ProblemService;
+        std::unique_ptr<SubmissionService> m_SubmissionService;
 
         // Handlers
         std::vector<std::unique_ptr<IHandler>> m_Handlers;
