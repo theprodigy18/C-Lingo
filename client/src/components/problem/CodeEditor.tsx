@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import MonacoEditor from '@monaco-editor/react';
 
 interface CodeEditorProps {
   value: string;
@@ -7,33 +7,14 @@ interface CodeEditorProps {
 }
 
 export const CodeEditor = ({ value, onChange, readOnly = false }: CodeEditorProps) => {
-  const [lineCount] = useState(() => {
-    const lines = value.split('\n');
-    return lines.length;
-  });
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const target = e.target as HTMLTextAreaElement;
-      const start = target.selectionStart;
-      const end = target.selectionEnd;
-
-      const newValue = value.substring(0, start) + '    ' + value.substring(end);
+  const handleEditorChange = (newValue: string | undefined) => {
+    if (newValue !== undefined) {
       onChange(newValue);
-
-      setTimeout(() => {
-        target.selectionStart = target.selectionEnd = start + 4;
-      }, 0);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value);
-  };
-
   return (
-    <div className="flex flex-col h-full bg-[#0d1117] border border-white/10 rounded-xl overflow-hidden">
+    <div className="flex flex-col h-full rounded-xl overflow-hidden border border-white/10">
       {/* Editor Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-white/10">
         <div className="flex items-center gap-2">
@@ -49,36 +30,41 @@ export const CodeEditor = ({ value, onChange, readOnly = false }: CodeEditorProp
       </div>
 
       {/* Editor Body */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Line Numbers */}
-        <div className="flex-shrink-0 py-4 bg-[#0d1117] border-r border-white/5 select-none">
-          <div className="px-4 text-right">
-            {Array.from({ length: lineCount }, (_, i) => (
-              <div key={i} className="text-gray-600 text-sm font-mono leading-6">
-                {i + 1}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Code Area */}
-        <div className="flex-1 relative">
-          <textarea
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            readOnly={readOnly}
-            spellCheck={false}
-            className={`absolute inset-0 w-full h-full p-4 bg-transparent text-gray-200 font-mono text-sm leading-6 resize-none outline-none ${
-              readOnly ? 'cursor-default' : 'cursor-text'
-            }`}
-            style={{
-              whiteSpace: 'pre',
-              overflowWrap: 'normal',
-              overflowX: 'auto',
-            }}
-          />
-        </div>
+      <div className="flex-1">
+        <MonacoEditor
+          height="100%"
+          defaultLanguage="c"
+          language="c"
+          theme="vs-dark"
+          value={value}
+          onChange={handleEditorChange}
+          options={{
+            readOnly,
+            minimap: { enabled: false },
+            fontSize: 14,
+            fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace",
+            fontLigatures: true,
+            lineNumbers: 'on',
+            lineNumbersMinChars: 3,
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            tabSize: 4,
+            insertSpaces: true,
+            wordWrap: 'off',
+            padding: { top: 16, bottom: 16 },
+            renderLineHighlight: 'line',
+            cursorBlinking: 'smooth',
+            smoothScrolling: true,
+            contextmenu: true,
+            folding: true,
+            foldingHighlight: true,
+            bracketPairColorization: { enabled: true },
+            guides: {
+              bracketPairs: true,
+              indentation: true,
+            },
+          }}
+        />
       </div>
     </div>
   );
