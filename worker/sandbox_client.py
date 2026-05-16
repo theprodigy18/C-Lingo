@@ -27,14 +27,14 @@ class SandboxClient:
 
     def execute(
         self,
-        code: str,
+        full_code: str,
         input_data: str
     ) -> ExecutionResult:
         """
         Execute C code in the sandbox container.
 
         Args:
-            code: The C source code to execute
+            full_code: The complete C source code (starter_code + entry_point combined)
             input_data: The input to provide to the program
 
         Returns:
@@ -46,11 +46,12 @@ class SandboxClient:
 
             # Write code file
             code_path = tmpdir / "code.c"
-            code_path.write_text(code)
+            code_path.write_text(full_code)
 
-            # Write input file
+            # Write input file - convert \n to actual newlines
             input_path = tmpdir / "input.txt"
-            input_path.write_text(input_data)
+            actual_input = input_data.replace('\\n', '\n')
+            input_path.write_text(actual_input)
 
             # Output file (created by sandbox)
             output_path = tmpdir / "output.txt"
@@ -67,7 +68,7 @@ class SandboxClient:
                 return ExecutionResult(
                     status=ExecutionStatus.TIME_LIMIT_EXCEEDED,
                     runtime_ms=config.MAX_WALL_TIME,
-                    memory_kb=0,
+                    memory_kb=0.0,
                     output="",
                     error_output="Execution timed out",
                     compiled_output=""
@@ -75,8 +76,8 @@ class SandboxClient:
             except Exception as e:
                 return ExecutionResult(
                     status=ExecutionStatus.INTERNAL_ERROR,
-                    runtime_ms=0,
-                    memory_kb=0,
+                    runtime_ms=0.0,
+                    memory_kb=0.0,
                     output="",
                     error_output=f"Internal error: {str(e)}",
                     compiled_output=""
@@ -128,16 +129,22 @@ class SandboxClient:
         stderr = result.stderr
         exit_code = result.returncode
 
-        # Check for compilation error
-        if "COMPILE ERROR" in stdout:
-            # Extract compile error message
+        # Check for compilation error (could be in stdout or stderr)
+        if "COMPILE ERROR" in stdout or ("error:" in stderr.lower()):
             compile_output = self._extract_between(stdout, "=== COMPILING ===", "=== SANDBOX END ===")
+            if not compile_output.strip():
+                # Try to extract just the gcc error from stderr
+                for line in stderr.split("\n"):
+                    if "error:" in line.lower():
+                        compile_output = line.strip()
+                        break
             return ExecutionResult(
                 status=ExecutionStatus.COMPILATION_ERROR,
-                runtime_ms=0,
-                memory_kb=0,
+                runtime_ms=0.0,
+                memory_kb=0.0,
                 output="",
-                error_output=compile_output.strip(),
+                error_output=compile_output.strip() if compile_output.strip() else "Compilation failed",
+                exit_code=exit_code,
                 compiled_output=compile_output.strip()
             )
 
@@ -146,21 +153,26 @@ class SandboxClient:
             return ExecutionResult(
                 status=ExecutionStatus.TIME_LIMIT_EXCEEDED,
                 runtime_ms=config.MAX_WALL_TIME,
-                memory_kb=0,
+                memory_kb=0.0,
                 output="",
                 error_output="Execution time limit exceeded",
+                exit_code=exit_code,
                 compiled_output=""
             )
 
         # Check for runtime error
         if "RUNTIME ERROR" in stdout:
             runtime_output = self._extract_between(stdout, "=== RUNNING ===", "=== SANDBOX END ===")
+            # Remove debug lines and empty lines
+            lines = [l for l in runtime_output.split("\n") if l.strip() and not l.startswith("MEMORY_KB:") and not l.startswith("---")]
+            runtime_output = "\n".join(lines)
             return ExecutionResult(
                 status=ExecutionStatus.RUNTIME_ERROR,
-                runtime_ms=0,
-                memory_kb=0,
+                runtime_ms=0.0,
+                memory_kb=0.0,
                 output="",
                 error_output=runtime_output.strip(),
+                exit_code=exit_code,
                 compiled_output=""
             )
 
@@ -168,10 +180,11 @@ class SandboxClient:
         if "OUTPUT LIMIT EXCEEDED" in stdout:
             return ExecutionResult(
                 status=ExecutionStatus.OUTPUT_LIMIT_EXCEEDED,
-                runtime_ms=0,
-                memory_kb=0,
+                runtime_ms=0.0,
+                memory_kb=0.0,
                 output="",
                 error_output="Output size exceeded limit",
+                exit_code=exit_code,
                 compiled_output=""
             )
 
@@ -179,26 +192,27 @@ class SandboxClient:
         if exit_code != 0 and exit_code != 137:
             return ExecutionResult(
                 status=ExecutionStatus.RUNTIME_ERROR,
-                runtime_ms=0,
-                memory_kb=0,
+                runtime_ms=0.0,
+                memory_kb=0.0,
                 output="",
                 error_output=f"Process exited with code {exit_code}",
+                exit_code=exit_code,
                 compiled_output=""
             )
 
         # Success - extract runtime and memory from output
-        runtime_ms = 0
-        memory_kb = 0
+        runtime_ms = 0.0
+        memory_kb = 0.0
 
         for line in stdout.split("\n"):
             if "Runtime:" in line:
                 try:
-                    runtime_ms = int(line.split(":")[1].strip().replace("ms", ""))
+                    runtime_ms = float(line.split(":")[1].strip().replace("ms", ""))
                 except (ValueError, IndexError):
                     pass
             if "Memory:" in line:
                 try:
-                    memory_kb = int(line.split(":")[1].strip().replace("KB", ""))
+                    memory_kb = float(line.split(":")[1].strip().replace("KB", ""))
                 except (ValueError, IndexError):
                     pass
 
@@ -217,6 +231,7 @@ class SandboxClient:
             memory_kb=memory_kb,
             output=output,
             error_output=stderr if stderr else "",
+            exit_code=exit_code,
             compiled_output=""
         )
 

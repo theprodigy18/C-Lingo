@@ -26,8 +26,8 @@ class Submission:
     problem_id: int
     code: str
     status: str
-    runtime_ms: int
-    memory_kb: int
+    runtime_ms: float  # milliseconds (float, e.g., 0.5)
+    memory_kb: float  # kilobytes (float, e.g., 2560.5)
     error_output: str
     submitted_at: str
 
@@ -36,6 +36,7 @@ class Submission:
 class TestCase:
     id: int
     problem_id: int
+    input_ui: str
     input: str
     expected_output: str
     explanation_md: str
@@ -51,6 +52,7 @@ class Problem:
     description_md: str
     constraints_md: str
     starter_code: str
+    entry_point: str
     tags: str
     difficulty: str
     energy_cost: int
@@ -62,10 +64,11 @@ class Problem:
 @dataclass
 class ExecutionResult:
     status: ExecutionStatus
-    runtime_ms: int
-    memory_kb: int
+    runtime_ms: float  # milliseconds (float)
+    memory_kb: float  # kilobytes (float)
     output: str
     error_output: str
+    exit_code: int = 0  # Raw exit code from sandbox (128+signal if killed by signal)
     compiled_output: str = ""
 
 

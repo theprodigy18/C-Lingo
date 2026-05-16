@@ -99,14 +99,14 @@ class Worker:
                 )
                 return
 
-            # Run against all test cases
-            results = self._run_test_cases(submission.code, test_cases)
+            # Combine user code with entry point
+            full_code = submission.code.strip() + "\n\n" + problem.entry_point
 
-            # Compare outputs with expected
-            test_results = self._compare_outputs(results, test_cases)
+            # Run against all test cases
+            test_results = self._run_test_cases(full_code, test_cases)
 
             # Determine overall result
-            overall_result = self._evaluate_results(results, test_results)
+            overall_result = self._evaluate_results(test_results)
 
             # Log results
             for i, tr in enumerate(test_results):
@@ -116,7 +116,9 @@ class Worker:
             # Update submission with final result
             max_runtime = max((tr.result.runtime_ms for tr in test_results), default=0)
             max_memory = max((tr.result.memory_kb for tr in test_results), default=0)
-            error_msg = self._build_error_message(test_results, overall_result)
+            # Get exit code from first test result for signal info
+            exit_code = test_results[0].result.exit_code if test_results else 0
+            error_msg = self._build_error_message(test_results, overall_result, exit_code)
 
             self.db.update_submission(
                 submission.id,
@@ -158,19 +160,23 @@ class Worker:
 
         return results
 
-    def _evaluate_results(self, results: List[TestCaseResult], overall_status: ExecutionStatus) -> ExecutionStatus:
+    def _evaluate_results(self, test_results: List[TestCaseResult]) -> ExecutionStatus:
         """Evaluate test case results to determine overall status."""
         # If any test case has compilation error, return compilation error
-        if any(tr.result.status == ExecutionStatus.COMPILATION_ERROR for tr in results):
+        if any(tr.result.status == ExecutionStatus.COMPILATION_ERROR for tr in test_results):
             return ExecutionStatus.COMPILATION_ERROR
 
-        # If any test case has internal error, return internal error
-        if any(tr.result.status == ExecutionStatus.INTERNAL_ERROR for tr in results):
-            return ExecutionStatus.INTERNAL_ERROR
+        # If any test case has runtime error, return runtime error
+        if any(tr.result.status == ExecutionStatus.RUNTIME_ERROR for tr in test_results):
+            return ExecutionStatus.RUNTIME_ERROR
+
+        # If any test case has time limit exceeded
+        if any(tr.result.status == ExecutionStatus.TIME_LIMIT_EXCEEDED for tr in test_results):
+            return ExecutionStatus.TIME_LIMIT_EXCEEDED
 
         # Check all test cases passed
         all_passed = True
-        for tr in results:
+        for tr in test_results:
             if not tr.is_correct:
                 all_passed = False
 
@@ -179,24 +185,79 @@ class Worker:
         else:
             return ExecutionStatus.WRONG_ANSWER
 
-    def _build_error_message(self, test_results: List[TestCaseResult], overall_status: ExecutionStatus) -> str:
-        """Build error message from test results."""
+    def _build_error_message(self, test_results: List[TestCaseResult], overall_status: ExecutionStatus, raw_exit_code: int = 0) -> str:
+        """Build clean error message from test results."""
         if overall_status == ExecutionStatus.ACCEPTED:
             return ""
 
         if overall_status == ExecutionStatus.COMPILATION_ERROR:
-            # Find the first compilation error
             for tr in test_results:
                 if tr.result.status == ExecutionStatus.COMPILATION_ERROR:
                     return tr.result.error_output
             return "Compilation failed"
 
+        if overall_status == ExecutionStatus.RUNTIME_ERROR:
+            # Clean up raw runner output - extract signal name
+            if raw_exit_code > 128:
+                signal_num = raw_exit_code - 128
+                signal_names = {
+                    1: "Hangup",
+                    2: "Interrupt (Ctrl+C)",
+                    3: "Quit (Ctrl+\)",
+                    4: "Illegal instruction",
+                    5: "Trace/breakpoint",
+                    6: "Aborted",
+                    7: "Bus error",
+                    8: "Floating point exception",
+                    9: "Killed",
+                    10: "User defined signal 1",
+                    11: "Segmentation fault",
+                    12: "User defined signal 2",
+                    13: "Pipe broken",
+                    14: "Alarm",
+                    15: "Terminated",
+                    16: "Stack fault",
+                    17: "Child stopped",
+                    18: "Continued",
+                    19: "Stopped (signal)",
+                    20: "Stopped",
+                    21: "TSTP",
+                    22: "STOP",
+                    23: "RTOSTOP",
+                    24: "Window resize",
+                    25: "URG",
+                    26: "VTALRM",
+                    27: "PROF",
+                    28: "WINCH",
+                    29: "IO",
+                    30: "PWR",
+                    31: "SYS",
+                }
+                signal_name = signal_names.get(signal_num, f"Signal {signal_num}")
+                return f"Runtime error: {signal_name} (signal {signal_num})"
+
+            for tr in test_results:
+                if tr.result.status == ExecutionStatus.RUNTIME_ERROR:
+                    return tr.result.error_output
+            return "Runtime error"
+
         if overall_status == ExecutionStatus.WRONG_ANSWER:
-            # Find first failed test case
             for i, tr in enumerate(test_results, 1):
                 if not tr.is_correct:
-                    return f"Wrong answer on test case {i}. Expected: {repr(tr.expected_output)}, Got: {repr(tr.actual_output)}"
+                    # Clean formatting
+                    expected = tr.expected_output.strip()
+                    actual = tr.actual_output.strip()
+                    return f"Test {i} failed:\nExpected: {expected}\nGot: {actual}"
             return "Wrong answer"
+
+        if overall_status == ExecutionStatus.TIME_LIMIT_EXCEEDED:
+            return "Time limit exceeded"
+
+        if overall_status == ExecutionStatus.MEMORY_LIMIT_EXCEEDED:
+            return "Memory limit exceeded"
+
+        if overall_status == ExecutionStatus.OUTPUT_LIMIT_EXCEEDED:
+            return "Output limit exceeded"
 
         return overall_status.value
 

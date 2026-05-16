@@ -68,7 +68,7 @@ class Database:
         """Fetch problem details by ID."""
         with self.get_cursor() as cursor:
             cursor.execute("""
-                SELECT id, title, slug, description_md, constraints_md, starter_code,
+                SELECT id, title, slug, description_md, constraints_md, starter_code, entry_point,
                        tags, difficulty, energy_cost, aura_reward, is_published, created_at
                 FROM problems
                 WHERE id = %s
@@ -85,6 +85,7 @@ class Database:
             description_md=row["description_md"] or "",
             constraints_md=row["constraints_md"] or "",
             starter_code=row["starter_code"] or "",
+            entry_point=row["entry_point"] or "",
             tags=row["tags"] or "",
             difficulty=row["difficulty"] or "",
             energy_cost=row["energy_cost"],
@@ -98,14 +99,14 @@ class Database:
         with self.get_cursor() as cursor:
             if include_hidden:
                 cursor.execute("""
-                    SELECT id, problem_id, input, expected_output, explanation_md, is_hidden, order_index
+                    SELECT id, problem_id, input_ui, input, expected_output, explanation_md, is_hidden, order_index
                     FROM test_cases
                     WHERE problem_id = %s
                     ORDER BY order_index ASC
                 """, (problem_id,))
             else:
                 cursor.execute("""
-                    SELECT id, problem_id, input, expected_output, explanation_md, is_hidden, order_index
+                    SELECT id, problem_id, input_ui, input, expected_output, explanation_md, is_hidden, order_index
                     FROM test_cases
                     WHERE problem_id = %s AND is_hidden = FALSE
                     ORDER BY order_index ASC
@@ -116,6 +117,7 @@ class Database:
             TestCase(
                 id=row["id"],
                 problem_id=row["problem_id"],
+                input_ui=row["input_ui"] or "",
                 input=row["input"] or "",
                 expected_output=row["expected_output"] or "",
                 explanation_md=row["explanation_md"] or "",
