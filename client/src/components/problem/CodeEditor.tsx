@@ -21,7 +21,7 @@ export const CodeEditor = ({ value, onChange, readOnly = false }: CodeEditorProp
           <svg className="w-4 h-4 text-[#22D3EE]" viewBox="0 0 24 24" fill="currentColor">
             <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
           </svg>
-          <span className="text-gray-400 text-sm font-mono">main.c</span>
+          <span className="text-gray-400 text-sm font-mono">code.c</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">C</span>
@@ -30,7 +30,7 @@ export const CodeEditor = ({ value, onChange, readOnly = false }: CodeEditorProp
       </div>
 
       {/* Editor Body */}
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <MonacoEditor
           height="100%"
           defaultLanguage="c"

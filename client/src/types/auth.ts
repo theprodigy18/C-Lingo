@@ -27,3 +27,8 @@ export interface AuthResponse {
   token?: string;
   sessionuser?: SessionUser;
 }
+
+export interface EditProfileFormData {
+  username: string;
+  displayName: string;
+}

@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { getAuthSessionStatus } from '../../lib/authSession';
+import type { EditProfileFormData } from '../../types/auth';
+import type { LeaderboardEntry } from '../../types/leaderboard';
 
 export type UserStateResponse = {
   success: boolean;
@@ -107,5 +109,40 @@ export const getLeaderboard = async (): Promise<{ userRank: number; entries: Lea
     };
   } catch {
     return null;
+  }
+};
+
+export type EditProfileResponse = {
+  success: boolean;
+  message?: string;
+};
+
+export const editProfile = async (data: EditProfileFormData): Promise<EditProfileResponse> => {
+  const { token } = getAuthSessionStatus();
+
+  if (!token) {
+    return { success: false, message: 'Not authenticated' };
+  }
+
+  try {
+    await axios.put(
+      `${baseUrl}/user/me`,
+      {
+        username: data.username,
+        display_name: data.displayName,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return { success: true };
+  } catch (error) {
+    const message =
+      axios.isAxiosError(error) && error.response?.data?.message
+        ? error.response.data.message
+        : 'Failed to update profile';
+    return { success: false, message };
   }
 };

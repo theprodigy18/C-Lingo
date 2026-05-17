@@ -48,3 +48,21 @@ export const signUpValidationSchema = Yup.object({
   email: emailValidation,
   password: passwordValidation,
 });
+
+// Display name validation for edit profile
+// Printable ASCII (33-126) + allows space (32), min 3 max 32 chars
+const printableAsciiWithSpacePattern = /^[ -~]+$/;
+
+export const displayNameValidation = Yup.string()
+  .required('Display name is required')
+  .min(3, 'Display name must be at least 3 characters')
+  .max(32, 'Display name must be at most 32 characters')
+  .matches(
+    printableAsciiWithSpacePattern,
+    'Display name can only contain letters, numbers, symbols, and spaces'
+  );
+
+export const editProfileValidationSchema = Yup.object({
+  username: usernameValidation,
+  displayName: displayNameValidation,
+});

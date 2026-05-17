@@ -169,6 +169,14 @@ export const DashboardPage = () => {
     }
   };
 
+  const handleUserUpdate = (newUsername: string, newDisplayName: string) => {
+    setUser({
+      ...user!,
+      username: newUsername,
+      display_name: newDisplayName,
+    });
+  };
+
   if (!user) {
     return null;
   }
@@ -189,7 +197,7 @@ export const DashboardPage = () => {
       }}
     >
       <Header userState={userState} />
-      <DashboardHero user={user} />
+      <DashboardHero user={user} onUserUpdate={handleUserUpdate} />
       <TabNav />
 
       <main className="flex-grow">
