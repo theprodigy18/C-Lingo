@@ -131,6 +131,7 @@ namespace CLingo
             description_md TEXT         NOT NULL,
             constraints_md TEXT,
             starter_code   TEXT         NOT NULL,
+            entry_point    TEXT         NOT NULL,
             tags           TEXT         NOT NULL DEFAULT '',
             difficulty     VARCHAR(20)  NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
             energy_cost    INT          NOT NULL DEFAULT 5   CHECK (energy_cost >= 0),
@@ -144,6 +145,7 @@ namespace CLingo
         CREATE TABLE IF NOT EXISTS test_cases (
             id              SERIAL PRIMARY KEY,
             problem_id      INT     NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
+            input_ui        TEXT    NOT NULL,
             input           TEXT    NOT NULL,
             expected_output TEXT    NOT NULL,
             explanation_md  TEXT,
@@ -161,11 +163,12 @@ namespace CLingo
             status            VARCHAR(30) NOT NULL CHECK (status IN (
                                   'pending', 'running',
                                   'accepted', 'wrong_answer',
+                                  'compilation_error', 'runtime_error',
                                   'time_limit_exceeded', 'memory_limit_exceeded',
-                                  'runtime_error', 'compile_error'
+                                  'output_limit_exceeded', 'internal_error'
                               )),
-            runtime_ms        INT,
-            memory_kb         INT,
+            runtime_ms        DECIMAL(10,3),
+            memory_kb         DECIMAL(10,3),
             error_output      TEXT,
             submitted_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );

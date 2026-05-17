@@ -100,7 +100,12 @@ namespace CLingo
         m_UserService = std::make_unique<UserService>(*m_UserRepository, *m_EnergyLogRepository);
         m_LevelService = std::make_unique<LevelService>(*m_LevelRepository, *m_UserRepository, *m_EnergyLogRepository, *m_AuraLogRepository);
         m_ProblemService = std::make_unique<ProblemService>(*m_ProblemRepository);
-        m_SubmissionService = std::make_unique<SubmissionService>(*m_SubmissionRepository);
+        m_SubmissionService = std::make_unique<SubmissionService>(
+            *m_SubmissionRepository,
+            *m_ProblemRepository,
+            *m_UserRepository,
+            *m_EnergyLogRepository,
+            *m_AuraLogRepository);
 
         // Setup handlers
         m_Handlers.push_back(

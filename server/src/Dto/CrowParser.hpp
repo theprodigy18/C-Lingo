@@ -30,6 +30,7 @@
 #include "Problem/ProblemListResponse.hpp"
 #include "Problem/ProblemDetailResponse.hpp"
 #include "Problem/SubmissionListResponse.hpp"
+#include "Problem/LeaderboardResponse.hpp"
 
 namespace CLingo::Dto
 {
@@ -389,6 +390,7 @@ namespace CLingo::Dto
         j["description_md"] = problem.descriptionMd;
         j["constraints_md"] = problem.constraintsMd;
         j["starter_code"] = problem.starterCode;
+        j["entry_point"] = problem.entryPoint;
         j["tags"] = problem.tags;
         j["difficulty"] = problem.difficulty;
         j["energy_cost"] = problem.energyCost;
@@ -399,6 +401,7 @@ namespace CLingo::Dto
         {
             crow::json::wvalue tcj;
             tcj["id"] = tc.id;
+            tcj["input_ui"] = tc.inputUi;
             tcj["input"] = tc.input;
             tcj["expected_output"] = tc.expectedOutput;
             tcj["explanation_md"] = tc.explanationMd;
@@ -430,10 +433,47 @@ namespace CLingo::Dto
             subit["status"] = s.status;
             subit["runtime_ms"] = s.runtimeMs;
             subit["memory_kb"] = s.memoryKb;
+            subit["error_output"] = s.errorOutput;
             subit["submitted_at"] = s.submittedAt;
             submissions.push_back(std::move(subit));
         }
         j["submissions"] = std::move(submissions);
+        j["aura_just_earned"] = res.auraJustEarned;
+        return j;
+    }
+
+    inline crow::json::wvalue ProblemLeaderboardResponseToJson(const ProblemLeaderboardResponse& res)
+    {
+        crow::json::wvalue j;
+
+        // Runtime leaderboard
+        j["user_rank_runtime"] = res.userRankRuntime;
+        j["user_runtime_ms"] = res.userRuntimeMs;
+        j["runtime_leaderboard"] = crow::json::wvalue::list();
+        for (uSize i{0}; i < res.runtimeEntries.size(); ++i)
+        {
+            j["runtime_leaderboard"][i]["rank"] = res.runtimeEntries[i].rank;
+            j["runtime_leaderboard"][i]["user_id"] = res.runtimeEntries[i].userId;
+            j["runtime_leaderboard"][i]["username"] = res.runtimeEntries[i].username;
+            j["runtime_leaderboard"][i]["display_name"] = res.runtimeEntries[i].displayName;
+            j["runtime_leaderboard"][i]["runtime_ms"] = res.runtimeEntries[i].runtimeMs;
+            j["runtime_leaderboard"][i]["submitted_at"] = res.runtimeEntries[i].submittedAt;
+        }
+
+        // Memory leaderboard
+        j["user_rank_memory"] = res.userRankMemory;
+        j["user_memory_kb"] = res.userMemoryKb;
+        j["memory_leaderboard"] = crow::json::wvalue::list();
+        for (uSize i{0}; i < res.memoryEntries.size(); ++i)
+        {
+            j["memory_leaderboard"][i]["rank"] = res.memoryEntries[i].rank;
+            j["memory_leaderboard"][i]["user_id"] = res.memoryEntries[i].userId;
+            j["memory_leaderboard"][i]["username"] = res.memoryEntries[i].username;
+            j["memory_leaderboard"][i]["display_name"] = res.memoryEntries[i].displayName;
+            j["memory_leaderboard"][i]["memory_kb"] = res.memoryEntries[i].memoryKb;
+            j["memory_leaderboard"][i]["submitted_at"] = res.memoryEntries[i].submittedAt;
+        }
+
         return j;
     }
 #pragma endregion

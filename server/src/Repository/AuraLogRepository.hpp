@@ -14,5 +14,6 @@ namespace CLingo
     {
     public:
         void AddAuraLog(PooledConnection& conn, i32 userId, i32 delta, const std::string& reason, i32 refId, const std::string& refType);
+        bool HasRewardForRef(PooledConnection& conn, i32 userId, i32 refId, const std::string& refType);
     };
 } // namespace CLingo

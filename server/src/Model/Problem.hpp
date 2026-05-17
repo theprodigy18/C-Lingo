@@ -11,6 +11,7 @@ namespace CLingo::Model
     {
         i32 id;
         i32 problemId;
+        std::string inputUi;
         std::string input;
         std::string expectedOutput;
         std::string explanationMd;
@@ -26,6 +27,7 @@ namespace CLingo::Model
         std::string descriptionMd;
         std::string constraintsMd;
         std::string starterCode;
+        std::string entryPoint;
         std::string tags;
         std::string difficulty;
         i32 energyCost;

@@ -36,6 +36,11 @@ namespace CLingo
             .methods(crow::HTTPMethod::Get)([this](const crow::request& req, int problemId) {
                 return HandleGetSubmissions(req, problemId);
             });
+
+        app.route_dynamic(m_BasePath + "/<int>/leaderboard")
+            .methods(crow::HTTPMethod::Get)([this](const crow::request& req, int problemId) {
+                return HandleGetProblemLeaderboard(req, problemId);
+            });
     }
 
     crow::response ProblemHandler::HandleGetProblems(const crow::request& req)
@@ -49,11 +54,16 @@ namespace CLingo
 
     crow::response ProblemHandler::HandleGetProblemDetail(const crow::request& req, i32 problemId)
     {
-        auto json = crow::json::load(req.body);
-        if (!json)
-            return BadRequest("Invalid JSON");
+        bool includeHidden = false;
 
-        bool includeHidden = json.has("include_hidden") && json["include_hidden"].b();
+        if (!req.body.empty())
+        {
+            auto json = crow::json::load(req.body);
+            if (json && json.has("include_hidden"))
+            {
+                includeHidden = json["include_hidden"].b();
+            }
+        }
 
         return WithConnection(m_Pool, [&](PooledConnection& conn) {
             auto response = m_ProblemService.GetProblemDetail(conn, problemId, includeHidden);
@@ -97,6 +107,32 @@ namespace CLingo
         return WithConnection(m_Pool, [&](PooledConnection& conn) {
             auto response = m_SubmissionService.GetSubmissions(conn, auth.userId, problemId);
             crow::json::wvalue j{Dto::SubmissionListResponseToJson(response)};
+            return Ok(std::move(j));
+        });
+    }
+
+    crow::response ProblemHandler::HandleGetProblemLeaderboard(const crow::request& req, i32 problemId)
+    {
+        const auto& auth = m_App.get_context<AuthMiddleware>(req);
+
+        // Parse limit from query params (default 10)
+        i32 limit = 10;
+        auto limitStr = req.url_params.get("limit");
+        if (limitStr)
+        {
+            try
+            {
+                limit = std::stoi(limitStr);
+            }
+            catch (...)
+            {
+                // Invalid number, keep default
+            }
+        }
+
+        return WithConnection(m_Pool, [&](PooledConnection& conn) {
+            auto response = m_SubmissionService.GetProblemLeaderboard(conn, auth.userId, problemId, limit);
+            crow::json::wvalue j{Dto::ProblemLeaderboardResponseToJson(response)};
             return Ok(std::move(j));
         });
     }

@@ -29,6 +29,7 @@ namespace CLingo
         crow::response HandleGetProblemDetail(const crow::request& req, i32 problemId);
         crow::response HandleSubmitCode(const crow::request& req, i32 problemId);
         crow::response HandleGetSubmissions(const crow::request& req, i32 problemId);
+        crow::response HandleGetProblemLeaderboard(const crow::request& req, i32 problemId);
 
     private:
         App& m_App;

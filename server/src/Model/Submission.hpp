@@ -14,8 +14,8 @@ namespace CLingo::Model
         i32 problemId;
         std::string code;
         std::string status;
-        i32 runtimeMs;
-        i32 memoryKb;
+        f64 runtimeMs;      // milliseconds (float, e.g., 0.5)
+        f64 memoryKb;       // kilobytes (float, e.g., 2560.5)
         std::string errorOutput;
         std::string submittedAt;
     };

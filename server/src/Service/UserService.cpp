@@ -114,8 +114,15 @@ namespace CLingo
         if (!Input::IsValidUsername(dto.username))
             throw BadRequestError("Invalid username format");
 
-        if (dto.displayName.empty())
-            throw BadRequestError("Display name cannot be empty");
+        // Display name: printable ASCII (32-126, includes space), not empty, 3-32 chars
+        if (dto.displayName.empty() || dto.displayName.size() < 3 || dto.displayName.size() > 32)
+            throw BadRequestError("Display name must be between 3 and 32 characters");
+
+        for (unsigned char c : dto.displayName)
+        {
+            if (c < 32 || c > 126)
+                throw BadRequestError("Display name contains invalid characters");
+        }
 
         if (m_UserRepo.UsernameExists(conn, userId, dto.username))
             throw ConflictError("Username already taken");

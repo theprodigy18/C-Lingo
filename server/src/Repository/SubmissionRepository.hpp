@@ -7,6 +7,7 @@
 
 #include <Database/PooledConnection.hpp>
 #include <Model/Submission.hpp>
+#include <Model/LeaderboardEntryWithCategory.hpp>
 
 namespace CLingo
 {
@@ -14,7 +15,10 @@ namespace CLingo
     {
     public:
         i32 Create(PooledConnection& conn, i32 userId, i32 problemId, const std::string& code);
-        void UpdateStatus(PooledConnection& conn, i32 submissionId, const std::string& status, i32 runtimeMs, i32 memoryKb, const std::string& errorOutput);
         std::vector<Model::Submission> FindByUserAndProblem(PooledConnection& conn, i32 userId, i32 problemId);
+        std::vector<Model::Submission> FindByProblem(PooledConnection& conn, i32 problemId);
+
+        // Get best submission per user per category for leaderboard
+        std::vector<Model::LeaderboardEntryWithCategory> FindLeaderboardByProblem(PooledConnection& conn, i32 problemId, i32 limit);
     };
 } // namespace CLingo

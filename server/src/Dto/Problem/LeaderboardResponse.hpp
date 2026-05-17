@@ -7,20 +7,28 @@
 
 namespace CLingo::Dto
 {
-    struct LeaderboardEntry
+    // Problem-specific leaderboard entry
+    struct ProblemLeaderboardEntry
     {
         i32 rank;
         i32 userId;
         std::string username;
         std::string displayName;
-        i32 value;
+        f64 runtimeMs;
+        f64 memoryKb;
         std::string submittedAt;
     };
 
-    struct LeaderboardResponse
+    struct ProblemLeaderboardResponse
     {
-        i32 userRank;
-        i32 userValue;
-        std::vector<LeaderboardEntry> entries;
+        // Runtime leaderboard
+        i32 userRankRuntime;
+        f64 userRuntimeMs;
+        std::vector<ProblemLeaderboardEntry> runtimeEntries;
+
+        // Memory leaderboard
+        i32 userRankMemory;
+        f64 userMemoryKb;
+        std::vector<ProblemLeaderboardEntry> memoryEntries;
     };
 } // namespace CLingo::Dto

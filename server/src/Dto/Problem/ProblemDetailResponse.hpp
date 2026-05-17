@@ -10,6 +10,7 @@ namespace CLingo::Dto
     struct TestCaseDto
     {
         i32 id;
+        std::string inputUi;
         std::string input;
         std::string expectedOutput;
         std::string explanationMd;
@@ -25,6 +26,7 @@ namespace CLingo::Dto
         std::string descriptionMd;
         std::string constraintsMd;
         std::string starterCode;
+        std::string entryPoint;
         std::string tags;
         std::string difficulty;
         i32 energyCost;

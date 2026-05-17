@@ -131,6 +131,7 @@ namespace CLingo::Dto
     {
         return TestCaseDto{
             tc.id,
+            tc.inputUi,
             tc.input,
             tc.expectedOutput,
             tc.explanationMd,
@@ -157,6 +158,7 @@ namespace CLingo::Dto
             problem.descriptionMd,
             problem.constraintsMd,
             problem.starterCode,
+            problem.entryPoint,
             problem.tags,
             problem.difficulty,
             problem.energyCost,
@@ -167,24 +169,6 @@ namespace CLingo::Dto
 #pragma endregion
 
 #pragma region Submission
-    inline SubmissionItem SubmissionToItem(const Model::Submission& sub)
-    {
-        return SubmissionItem{
-            sub.id,
-            sub.status,
-            sub.runtimeMs,
-            sub.memoryKb,
-            sub.submittedAt,
-        };
-    }
 
-    inline std::vector<SubmissionItem> SubmissionsToItems(const std::vector<Model::Submission>& submissions)
-    {
-        std::vector<SubmissionItem> items;
-        items.reserve(submissions.size());
-        for (const auto& sub : submissions)
-            items.push_back(SubmissionToItem(sub));
-        return items;
-    }
 #pragma endregion
 } // namespace CLingo::Dto

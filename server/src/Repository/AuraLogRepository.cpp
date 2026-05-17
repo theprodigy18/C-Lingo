@@ -23,4 +23,18 @@ namespace CLingo
         if (result.empty())
             throw InternalError("Failed to add aura log");
     }
+
+    bool AuraLogRepository::HasRewardForRef(PooledConnection& conn, i32 userId, i32 refId, const std::string& refType)
+    {
+        pqxx::read_transaction txn{conn.Get()};
+
+        auto result{txn.exec_params(R"(
+                                SELECT 1 FROM aura_logs
+                                WHERE user_id = $1 AND ref_id = $2 AND ref_type = $3
+                                LIMIT 1
+                                )",
+                                    pqxx::params{userId, refId, refType})};
+
+        return !result.empty();
+    }
 } // namespace CLingo

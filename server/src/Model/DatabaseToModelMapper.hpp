@@ -14,6 +14,8 @@
 #include "Level.hpp"
 #include "Problem.hpp"
 #include "Submission.hpp"
+#include "SubmissionWithUser.hpp"
+#include "LeaderboardEntryWithCategory.hpp"
 
 namespace CLingo::Model
 {
@@ -192,6 +194,7 @@ namespace CLingo::Model
         return TestCase{
             row["id"].as<i32>(),
             row["problem_id"].as<i32>(),
+            row["input_ui"].as<std::string>(),
             row["input"].as<std::string>(),
             row["expected_output"].as<std::string>(),
             row["explanation_md"].is_null() ? "" : row["explanation_md"].as<std::string>(),
@@ -217,6 +220,7 @@ namespace CLingo::Model
             row["description_md"].as<std::string>(),
             row["constraints_md"].is_null() ? "" : row["constraints_md"].as<std::string>(),
             row["starter_code"].as<std::string>(),
+            row["entry_point"].is_null() ? "" : row["entry_point"].as<std::string>(),
             row["tags"].as<std::string>(),
             row["difficulty"].as<std::string>(),
             row["energy_cost"].as<i32>(),
@@ -242,8 +246,8 @@ namespace CLingo::Model
             row["problem_id"].as<i32>(),
             row["code"].as<std::string>(),
             row["status"].as<std::string>(),
-            row["runtime_ms"].is_null() ? 0 : row["runtime_ms"].as<i32>(),
-            row["memory_kb"].is_null() ? 0 : row["memory_kb"].as<i32>(),
+            row["runtime_ms"].is_null() ? 0.0 : row["runtime_ms"].as<f64>(),
+            row["memory_kb"].is_null() ? 0.0 : row["memory_kb"].as<f64>(),
             row["error_output"].is_null() ? "" : row["error_output"].as<std::string>(),
             row["submitted_at"].as<std::string>()};
     }
@@ -255,5 +259,45 @@ namespace CLingo::Model
         for (const auto& row : result)
             submissions.emplace_back(MapSubmission(row));
         return submissions;
+    }
+
+    inline SubmissionWithUser MapSubmissionWithUser(const pqxx::row& row)
+    {
+        return SubmissionWithUser{
+            row["user_id"].as<i32>(),
+            row["username"].as<std::string>(),
+            row["display_name"].as<std::string>(),
+            row["runtime_ms"].is_null() ? 0.0 : row["runtime_ms"].as<f64>(),
+            row["memory_kb"].is_null() ? 0.0 : row["memory_kb"].as<f64>(),
+            row["submitted_at"].as<std::string>()};
+    }
+
+    inline std::vector<SubmissionWithUser> MapSubmissionsWithUser(const pqxx::result& result)
+    {
+        std::vector<SubmissionWithUser> entries;
+        entries.reserve(result.size());
+        for (const auto& row : result)
+            entries.emplace_back(MapSubmissionWithUser(row));
+        return entries;
+    }
+
+    inline LeaderboardEntryWithCategory MapLeaderboardEntryWithCategory(const pqxx::row& row)
+    {
+        return LeaderboardEntryWithCategory{
+            row["user_id"].as<i32>(),
+            row["username"].as<std::string>(),
+            row["display_name"].as<std::string>(),
+            row["value"].as<f64>(),
+            row["submitted_at"].as<std::string>(),
+            row["category"].as<std::string>()};
+    }
+
+    inline std::vector<LeaderboardEntryWithCategory> MapLeaderboardEntriesWithCategory(const pqxx::result& result)
+    {
+        std::vector<LeaderboardEntryWithCategory> entries;
+        entries.reserve(result.size());
+        for (const auto& row : result)
+            entries.emplace_back(MapLeaderboardEntryWithCategory(row));
+        return entries;
     }
 } // namespace CLingo::Model
