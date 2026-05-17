@@ -40,48 +40,64 @@ class SandboxClient:
         Returns:
             ExecutionResult with status, runtime, memory, output and error info
         """
-        # Create a temporary directory for the files
-        with tempfile.TemporaryDirectory(prefix="clingo_sandbox_") as tmpdir:
-            tmpdir = Path(tmpdir)
+        # Use the shared sandbox tmp directory instead of random temp
+        tmpdir = config.TMP_DIR
+        tmpdir.mkdir(parents=True, exist_ok=True)
 
+        # Use unique filenames to avoid collisions
+        import uuid
+        run_id = uuid.uuid4().hex[:8]
+        code_path = tmpdir / f"code_{run_id}.c"
+        input_path = tmpdir / f"input_{run_id}.txt"
+        output_path = tmpdir / f"output_{run_id}.txt"
+
+        try:
             # Write code file
-            code_path = tmpdir / "code.c"
             code_path.write_text(full_code)
 
-            # Write input file - convert \n to actual newlines
-            input_path = tmpdir / "input.txt"
+            # Write input file - convert \\n to actual newlines
             actual_input = input_data.replace('\\n', '\n')
             input_path.write_text(actual_input)
 
-            # Output file (created by sandbox)
-            output_path = tmpdir / "output.txt"
-
-            try:
-                result = self._run_container(
-                    tmpdir,
-                    code_path,
-                    input_path,
-                    output_path
-                )
-                return result
-            except subprocess.TimeoutExpired:
-                return ExecutionResult(
-                    status=ExecutionStatus.TIME_LIMIT_EXCEEDED,
-                    runtime_ms=config.MAX_WALL_TIME,
-                    memory_kb=0.0,
-                    output="",
-                    error_output="Execution timed out",
-                    compiled_output=""
-                )
-            except Exception as e:
-                return ExecutionResult(
-                    status=ExecutionStatus.INTERNAL_ERROR,
-                    runtime_ms=0.0,
-                    memory_kb=0.0,
-                    output="",
-                    error_output=f"Internal error: {str(e)}",
-                    compiled_output=""
-                )
+            result = self._run_container(
+                tmpdir,
+                code_path,
+                input_path,
+                output_path
+            )
+            return result
+        except subprocess.TimeoutExpired:
+            return ExecutionResult(
+                status=ExecutionStatus.TIME_LIMIT_EXCEEDED,
+                runtime_ms=config.MAX_WALL_TIME,
+                memory_kb=0.0,
+                output="",
+                error_output="Execution timed out",
+                compiled_output=""
+            )
+        except Exception as e:
+            return ExecutionResult(
+                status=ExecutionStatus.INTERNAL_ERROR,
+                runtime_ms=0.0,
+                memory_kb=0.0,
+                output="",
+                error_output=f"Internal error: {str(e)}",
+                compiled_output=""
+            )
+        finally:
+            # Cleanup temp files
+            for p in (code_path, input_path, output_path):
+                try:
+                    p.unlink()
+                except FileNotFoundError:
+                    pass
+            # Also cleanup run_mem artifacts
+            for suffix in ('_run.txt', '_output_run.txt'):
+                p = tmpdir / f"{run_id}{suffix}"
+                try:
+                    p.unlink()
+                except FileNotFoundError:
+                    pass
 
     def _run_container(
         self,
@@ -100,9 +116,9 @@ class SandboxClient:
             "-w", "/code",
             self.image,
             "/usr/local/bin/runner.sh",
-            "code.c",
-            "input.txt",
-            "output.txt"
+            code_path.name,
+            input_path.name,
+            output_path.name
         ]
 
         try:

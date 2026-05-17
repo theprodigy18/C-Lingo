@@ -203,7 +203,7 @@ class Worker:
                 signal_names = {
                     1: "Hangup",
                     2: "Interrupt (Ctrl+C)",
-                    3: "Quit (Ctrl+\)",
+                    3: r"Quit (Ctrl+\)",
                     4: "Illegal instruction",
                     5: "Trace/breakpoint",
                     6: "Aborted",
