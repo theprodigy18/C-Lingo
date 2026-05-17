@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=MuseoModerno:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import "sweetalert2/dist/sweetalert2.min.css";
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.font-museo {
+  font-family: 'MuseoModerno', cursive;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-clingo-blue {
+  color: #22D3EE;
+}
+
+.bg-clingo-dark {
+  background-color: #0B1E33;
+}
+
+.bg-clingo-darker {
+  background-color: #071626;
+}
+
+.shadow-glow-cyan {
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+}
+
+.auth-card-shadow {
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.22);
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  padding: 1rem 1.25rem;
+  color: #1a2e44;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.input-field::placeholder {
+  color: #94a3b8;
+}
+
+.input-field:focus {
+  border-color: #22d3ee;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.16);
+}
+
+.clingo-swal-popup {
+  width: min(92vw, 420px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #102b46 0%, #0b1e33 100%);
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.36), 0 0 24px rgba(34, 211, 238, 0.16);
+}
+
+.clingo-swal-title {
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.clingo-swal-message {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.clingo-swal-icon {
+  margin-top: 1.8rem;
+}
+
+.clingo-swal-actions {
+  gap: 0.75rem;
+}
+
+.clingo-swal-confirm,
+.clingo-swal-cancel {
+  min-width: 104px;
+  border: 0;
+  border-radius: 14px;
+  padding: 0.85rem 1.2rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.clingo-swal-confirm {
+  background: #22d3ee;
+  color: #071626;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.34);
+}
+
+.clingo-swal-confirm:hover {
+  background: #67e8f9;
+  transform: translateY(-1px);
+}
+
+.clingo-swal-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.clingo-swal-cancel:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.clingo-swal-loader {
+  border-color: #22d3ee transparent #22d3ee transparent;
+}
+
+.clingo-swal-toast {
+  width: min(92vw, 380px) !important;
+  border-radius: 18px;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(180deg, #102b46 0%, #0b1e33 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.otp-input {
+  width: 52px;
+  height: 60px;
+  border-radius: 14px;
+  border: 2px solid #e5e7eb;
+  background: #f8fafc;
+  color: #1a2e44;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.otp-input::placeholder {
+  color: #94a3b8;
+}
+
+.otp-input:focus {
+  border-color: #22d3ee;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.16);
+}
+
+.clingo-swal-toast .clingo-swal-message {
+  margin: 0.15rem 0 0;
+  text-align: left;
+}
+
+.swal2-timer-progress-bar {
+  background: #22d3ee;
+}

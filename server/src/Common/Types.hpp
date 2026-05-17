@@ -1,0 +1,25 @@
+// Copyright (c) 2026 Febri Andika, Galih Mahda, and Ivan Alfariziq
+// SPDX-License-Identifier: MIT
+
+#pragma once
+
+#include <stdint.h>
+
+// Unsigned type
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+
+// Signed type
+using i8 = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
+
+// Float type
+using f32 = float;
+using f64 = double;
+
+// Size type
+using uSize = size_t;
