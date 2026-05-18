@@ -89,7 +89,7 @@ class Worker:
                 )
                 return
 
-            test_cases = self.db.fetch_test_cases(submission.problem_id, include_hidden=False)
+            test_cases = self.db.fetch_test_cases(submission.problem_id, include_hidden=True)
             if not test_cases:
                 logger.error(f"No test cases found for problem {submission.problem_id}")
                 self.db.update_submission(
