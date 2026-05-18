@@ -94,7 +94,7 @@ class Database:
             created_at=str(row["created_at"])
         )
 
-    def fetch_test_cases(self, problem_id: int, include_hidden: bool = False) -> List[TestCase]:
+    def fetch_test_cases(self, problem_id: int, include_hidden: bool = True) -> List[TestCase]:
         """Fetch test cases for a problem."""
         with self.get_cursor() as cursor:
             if include_hidden:

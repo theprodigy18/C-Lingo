@@ -89,7 +89,7 @@ class Worker:
                 )
                 return
 
-            test_cases = self.db.fetch_test_cases(submission.problem_id, include_hidden=False)
+            test_cases = self.db.fetch_test_cases(submission.problem_id, include_hidden=True)
             if not test_cases:
                 logger.error(f"No test cases found for problem {submission.problem_id}")
                 self.db.update_submission(
@@ -203,7 +203,7 @@ class Worker:
                 signal_names = {
                     1: "Hangup",
                     2: "Interrupt (Ctrl+C)",
-                    3: "Quit (Ctrl+\)",
+                    3: r"Quit (Ctrl+\)",
                     4: "Illegal instruction",
                     5: "Trace/breakpoint",
                     6: "Aborted",
